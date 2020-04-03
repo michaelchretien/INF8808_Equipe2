@@ -19,7 +19,7 @@
  * @see http://bl.ocks.org/IPWright83/08ae9e22a41b7e64e090cae4aba79ef9       (en d3 v3)
  * @see https://bl.ocks.org/mbostock/34f08d5e11952a80609169b7917d4172    ==> (en d3 v5) <==
  */
-function brushUpdate(brush, g, line, xFocus, xContext, xAxis, yAxis) {
+/*function brushUpdate(g, line, xFocus, xContext, xAxis, yAxis) {
   // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
   xFocus.domain(d3.event.selection === null ? xContext.domain() : d3.event.selection.map(xContext.invert));
   g.selectAll("path.line").attr("d", function (d) {
@@ -27,4 +27,4 @@ function brushUpdate(brush, g, line, xFocus, xContext, xAxis, yAxis) {
   });
   g.select(".x.axis").call(xAxis);
   g.select(".y.axis").call(yAxis);
-}
+}*/

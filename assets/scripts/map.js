@@ -21,12 +21,12 @@
 * @param line      La fonction permettant de dessiner les lignes du graphique.
 * @param color     L'échelle de couleurs ayant une couleur associée à un nom de rue.
 */
-function createMap(g, sources, line, color) {
+function createMap(g, sources, line, color, rect) {
     g.append("rect")
-        .attr("width", "100%")
-        .attr("height", "100%")
+        .attr("width", rect.width)
+        .attr("height", rect.height)
         .style("stroke", "black")
-        .style("fill", "none")
+        .style("fill", "red")
         .style("stroke-width", 1)
         .attr("transform", "translate(-60, 0)");
 }

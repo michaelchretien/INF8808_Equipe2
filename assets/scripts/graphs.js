@@ -23,14 +23,14 @@
  * @param line      La fonction permettant de dessiner les lignes du graphique.
  * @param color     L'échelle de couleurs ayant une couleur associée à un nom de rue.
  */
-function createGraph(g, sources, line, color) {
+function createGraph(g, sources, line, color, xAxisGraph, yAxisGraph, rect) {
     g.append("rect")
-        .attr("width", "100%")
-        .attr("height", "100%")
+        .attr("width", rect.width)
+        .attr("height", rect.height)
         .style("stroke", "black")
         .style("fill", "none")
         .style("stroke-width", 1)
-        .attr("transform", "translate(-60, -50)");
+        .attr("transform", "translate(-60, 0)");
 
     var contextLineGroups = g.append("g")
         .attr("class", "context")
@@ -40,23 +40,30 @@ function createGraph(g, sources, line, color) {
 
     contextLineGroups.append("path")
         .attr("class", "line")
-        .attr("d", function (d) {
-            return line(d.values);
-        })
+        .attr("d", d => line(d.values))
         .attr("clip-path", "url(#clip)")
-        .style("stroke", function (d) {
-            if (d.name === "Moyenne") {
-                return "black"
-            }
-            return color(d.name);
-        })
-        .style("stroke-width", function (d) {
-            if (d.name === "Moyenne") {
-                return 2;
-            }
-            return 1;
-        })
-        .attr("id", function (d) {
-            return "context" + d.name;
-        });
+        .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
+        .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
+        .attr("id", d => "context" + d.name);
+
+    // Axes graph
+    var height = rect.bottom - rect.top
+    g.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisGraph);
+
+    g.append("g")
+        .attr("class", "y axis")
+        .call(yAxisGraph);
+}
+
+function brushUpdate(g, line, xFocus, xContext, xAxis, yAxis) {
+    // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
+    xFocus.domain(d3.event.selection === null ? xContext.domain() : d3.event.selection.map(xContext.invert));
+    g.selectAll("path.line").attr("d", function (d) {
+        return line(d.values)
+    });
+    g.select(".x.axis").call(xAxis);
+    g.select(".y.axis").call(yAxis);
 }

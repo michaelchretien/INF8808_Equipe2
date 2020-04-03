@@ -12,45 +12,30 @@
  *
  * Basé sur le code du TP2
  */
+
+function Rect(top, bottom, left, right, margins) {
+  this.top = top;
+  this.bottom = bottom;
+  this.left = left;
+  this.right = right;
+  this.width = right - left;
+  this.height = bottom - top;
+}
+
 (function (d3, localization) {
   "use strict";
 
   /***** Configuration *****/
-  var marginMap = {
-    top: 10,
-    right: 10,
-    bottom: 100,
-    left: 60
-  };
-  var widthMap = 1200 - marginMap.left - marginMap.right;
-  var heightMap = 400;
-
-  // Graphique principal (graph)
-  var marginGraph = {
-    top: 500,
-    right: 10,
-    bottom: 100,
-    left: 60
-  };
-  var widthGraph = 1200 - marginGraph.left - marginGraph.right;
-  var heightGraph = 450;
-
-  // Graphique secondaire qui permet de choisir l'échelle de la visualisation (timelinee)
-  var marginTimeline = {
-    top: 375,
-    right: 10,
-    bottom: 30,
-    left: 60
-  };
-  var widthTimeline = widthGraph;
-  var heightTimeline = 50;
+  var mapRect = new Rect(0, 1200, 0, 100);
+  var timelineRect = new Rect(400, 460, 100, 900);
+  var graphRect = new Rect(460, 1200, 100, 900);
 
   /***** Échelles *****/
-  var xGraph = d3.scaleTime().range([0, widthGraph]);
-  var yGraph = d3.scaleLinear().range([heightGraph, 0]);
+  var xGraph = d3.scaleTime().range([0, graphRect.width]);
+  var yGraph = d3.scaleLinear().range([graphRect.height, 0]);
 
-  var xTimeline = d3.scaleTime().range([0, widthTimeline]);
-  var yTimeline = d3.scaleLinear().range([heightTimeline, 0]);
+  var xTimeline = d3.scaleTime().range([0, timelineRect.width]);
+  var yTimeline = d3.scaleLinear().range([timelineRect.height, 0]);
 
   var xAxisGraph = d3.axisBottom(xGraph).tickFormat(localization.getFormattedDate);
   var yAxisGraph = d3.axisLeft(yGraph);
@@ -60,23 +45,23 @@
   /***** Création des éléments *****/
   var svg = d3.select("body")
     .append("svg")
-    .attr("width", widthGraph + marginGraph.left + marginGraph.right)
-    .attr("height", heightGraph + marginGraph.top + marginGraph.bottom);
+    .attr("width", 1200)
+    .attr("height", 1300);
 
   var map = svg.append("g")
-    .attr("transform", "translate(" + marginMap.left + "," + marginMap.top + ")");
+    .attr("transform", "translate(" + mapRect.left + "," + mapRect.top + ")");
   var timeline = svg.append("g")
-    .attr("transform", "translate(" + marginTimeline.left + "," + marginTimeline.top + ")");
+    .attr("transform", "translate(" + timelineRect.left + "," + timelineRect.top + ")");
   var graph = svg.append("g")
-    .attr("transform", "translate(" + marginGraph.left + "," + marginGraph.top + ")");
+    .attr("transform", "translate(" + graphRect.left + "," + graphRect.top + ")");
 
   // Ajout d'un plan de découpage.
   svg.append("defs")
     .append("clipPath")
     .attr("id", "clip")
     .append("rect")
-    .attr("width", widthGraph)
-    .attr("height", heightGraph);
+    .attr("width", 1500)
+    .attr("height", 2000);
 
   // Fonctions pour dessiner les lignes
   var lineGraph = createLine(xGraph, yGraph);
@@ -84,9 +69,9 @@
 
   // Permet de redessiner le graphique principal lorsque le zoom/brush est modifié.
   var brush = d3.brushX()
-    .extent([[0, 0], [widthTimeline, heightTimeline]])
+    .extent([[0, 0], [timelineRect.width, timelineRect.height]])
     .on("brush", function () {
-      brushUpdate(brush, graph, lineGraph, xGraph, xTimeline, xAxisGraph, yAxisGraph);
+      brushUpdate(graph, lineGraph, xGraph, xTimeline, xAxisGraph, yAxisGraph);
     });
 
   /***** Chargement des données *****/
@@ -102,34 +87,8 @@
     domainX(xGraph, xTimeline, data);
     domainY(yGraph, yTimeline, sources);
 
-    createMap(map, sources, lineGraph, color);
-    /***** Création du graphique graph *****/
-    createGraph(graph, sources, lineGraph, color);
-
-    // Axes graph
-    graph.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + heightGraph + ")")
-      .call(xAxisGraph);
-
-    graph.append("g")
-      .attr("class", "y axis")
-      .call(yAxisGraph);
-
-    /***** Création du graphique timelinee *****/
-    createTimeline(timeline, sources, lineTimeline, color);
-
-    // Axes timelinee
-    timeline.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + heightTimeline + ")")
-      .call(xAxisTimeline);
-
-    timeline.append("g")
-      .attr("class", "x brush")
-      .call(brush)
-      .selectAll("rect")
-      .attr("y", -6)
-      .attr("height", heightTimeline + 7);
+    createMap(map, sources, lineGraph, color, mapRect);
+    createGraph(graph, sources, lineGraph, color, xAxisGraph, yAxisGraph, graphRect);
+    createTimeline(timeline, sources, lineTimeline, color, xAxisTimeline, timelineRect, brush);
   });
 })(d3, localization);
