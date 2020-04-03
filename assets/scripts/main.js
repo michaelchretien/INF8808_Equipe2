@@ -13,13 +13,15 @@
  * Basé sur le code du TP2
  */
 
-function Rect(top, bottom, left, right) {
-  this.top = top;
-  this.bottom = bottom;
-  this.left = left;
-  this.right = right;
-  this.width = right - left;
-  this.height = bottom - top;
+class Rect {
+  constructor(top, bottom, left, right) {
+    this.top = top;
+    this.bottom = bottom;
+    this.left = left;
+    this.right = right;
+    this.width = right - left;
+    this.height = bottom - top;
+  }
 }
 
 (function (d3, localization) {
@@ -30,55 +32,34 @@ function Rect(top, bottom, left, right) {
   var timelineRect = new Rect(400, 460, 100, 900);
   var graphRect = new Rect(460, 1200, 100, 900);
 
-  /***** Échelles *****/
-  var xGraph = d3.scaleTime().range([0, graphRect.width]);
-  var yGraph = d3.scaleLinear().range([graphRect.height, 0]);
-
-  var xAxisGraph = d3.axisBottom(xGraph).tickFormat(localization.getFormattedDate);
-  var yAxisGraph = d3.axisLeft(yGraph);
-
-
   /***** Création des éléments *****/
   var svg = d3.select("body")
     .append("svg")
     .attr("width", 1200)
     .attr("height", 1300);
 
-  var map = svg.append("g")
-    .attr("transform", "translate(" + mapRect.left + "," + mapRect.top + ")");
-  var graph = svg.append("g")
-    .attr("transform", "translate(" + graphRect.left + "," + graphRect.top + ")");
-
-  // Ajout d'un plan de découpage.
-  svg.append("defs")
-    .append("clipPath")
-    .attr("id", "clip")
-    .append("rect")
-    .attr("width", 1500)
-    .attr("height", 2000);
-
-  // Fonctions pour dessiner les lignes
-  var lineGraph = createLine(xGraph, yGraph);
-
+  // Création des éléments
   var timeline = new Timeline(timelineRect, svg)
+  var graphs = new GraphViz(graphRect, svg)
+  var map = new MapViz(mapRect, svg)
+
   /***** Chargement des données *****/
   d3.csv("./data/2016.csv").then(function (data) {
-    /***** Prétraitement des données *****/
-    // Échelle permettant d'associer 10 valeurs à 10 couleurs différentes
+    // Prétraitement des données
     var color = d3.scaleOrdinal(d3.schemeCategory10);
-
     domainColor(color, data);
     parseDate(data);
-
     var sources = createSources(color, data);
-    domainX(xGraph, xTimeline, data);
-    domainY(yGraph, yTimeline, sources);
 
-    createMap(map, sources, lineGraph, color, mapRect);
-    createGraph(graph, sources, lineGraph, color, xAxisGraph, yAxisGraph, graphRect);
-    timeline.initialize(data, sources, color)
+    // Initialisation des élements
+    map.initialize(data, sources, color);
+    graphs.initialize(data, sources, color);
+    timeline.initialize(data, sources, color);
+
+    // Ajout des callbacks lors des changements de timeline
     timeline.onSelectionChanged = function () {
-      brushUpdate(graph, lineGraph, xGraph, timeline.x, xAxisGraph, yAxisGraph);
+      graphs.update(timeline.x)
+      map.update(timeline.x)
     }
   });
 })(d3, localization);

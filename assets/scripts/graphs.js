@@ -14,56 +14,75 @@
  */
 
 "use strict";
+class GraphViz {
+    constructor(rect, svg) {
+        this.rect = rect;
+        this.x = d3.scaleTime().range([0, rect.width]);
+        this.y = d3.scaleLinear().range([rect.height, 0]);
+        this.g = svg.append("g")
+            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+        this.line = createLine(this.x, this.y);
+        this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
+        this.yAxis = d3.axisLeft(this.y);
 
-/**
- * Crée les graphiques.
- *
- * @param g         Le groupe SVG dans lequel le graphique doit être dessiné.
- * @param sources   Les données à utiliser.
- * @param line      La fonction permettant de dessiner les lignes du graphique.
- * @param color     L'échelle de couleurs ayant une couleur associée à un nom de rue.
- */
-function createGraph(g, sources, line, color, xAxisGraph, yAxisGraph, rect) {
-    g.append("rect")
-        .attr("width", rect.width)
-        .attr("height", rect.height)
-        .style("stroke", "black")
-        .style("fill", "none")
-        .style("stroke-width", 1)
-        .attr("transform", "translate(-60, 0)");
+        // Ajout d'un plan de découpage.
+        this.g.append("defs")
+            .append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", this.rect.width)
+            .attr("height", this.rect.height);
+    }
 
-    var contextLineGroups = g.append("g")
-        .attr("class", "context")
-        .selectAll("g")
-        .data(sources)
-        .enter().append("g");
+    initialize(data, sources, color) {
+        this.brush = d3.brushX()
+            .extent([[0, 0], [this.rect.width, this.rect.height]])
+            .on("brush", () => this.onSelectionChanged())
 
-    contextLineGroups.append("path")
-        .attr("class", "line")
-        .attr("d", d => line(d.values))
-        .attr("clip-path", "url(#clip)")
-        .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
-        .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
-        .attr("id", d => "context" + d.name);
+        domainX(this.x, this.x, data);
+        domainY(this.y, this.y, sources);
 
-    // Axes graph
-    var height = rect.bottom - rect.top
-    g.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxisGraph);
+        this.g.append("rect")
+            .attr("width", this.rect.width)
+            .attr("height", this.rect.height)
+            .style("stroke", "black")
+            .style("fill", "none")
+            .style("stroke-width", 1)
+            .attr("transform", "translate(-60, 0)");
 
-    g.append("g")
-        .attr("class", "y axis")
-        .call(yAxisGraph);
-}
+        var contextLineGroups = this.g.append("g")
+            .attr("class", "context")
+            .selectAll("g")
+            .data(sources)
+            .enter().append("g");
 
-function brushUpdate(g, line, xFocus, xContext, xAxis, yAxis) {
-    // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
-    xFocus.domain(d3.event.selection === null ? xContext.domain() : d3.event.selection.map(xContext.invert));
-    g.selectAll("path.line").attr("d", function (d) {
-        return line(d.values)
-    });
-    g.select(".x.axis").call(xAxis);
-    g.select(".y.axis").call(yAxis);
+        contextLineGroups.append("path")
+            .attr("class", "line")
+            .attr("d", d => this.line(d.values))
+            .attr("clip-path", "url(#clip)")
+            .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
+            .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
+            .attr("id", d => "context" + d.name);
+
+        this.g.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + this.rect.height + ")")
+            .call(this.xAxis);
+
+        this.g.append("g")
+            .attr("class", "y axis")
+            .call(this.yAxis);
+    }
+
+    update(newDomain) {
+        // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
+        var line = this.line
+        this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
+        this.g.selectAll("path.line").attr("d", function (d) {
+            return line(d.values)
+        });
+        this.g.select(".x.axis").call(this.x);
+        this.g.select(".y.axis").call(this.y);
+    }
+
 }
