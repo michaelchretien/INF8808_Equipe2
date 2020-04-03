@@ -12,52 +12,65 @@
  *
  * Basé sur le code du TP2
  */
+class Timeline {
+    constructor(rect, svg) {
+        this.rect = rect;
+        this.x = d3.scaleTime().range([0, rect.width]);
+        this.y = d3.scaleLinear().range([rect.height, 0]);
+        this.g = svg.append("g")
+            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+        this.line = createLine(this.x, this.y);
+        this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
+    }
 
-/**
-* Crée les graphiques.
-*
-* @param g         Le groupe SVG dans lequel le graphique doit être dessiné.
-* @param sources   Les données à utiliser.
-* @param line      La fonction permettant de dessiner les lignes du graphique.
-* @param color     L'échelle de couleurs ayant une couleur associée à un nom de rue.
-*/
-function createTimeline(g, sources, line, color, xAxisTimeline, rect, brush) {
-    g.append("rect")
-        .attr("width", rect.width)
-        .attr("height", rect.height)
-        .style("stroke", "black")
-        .style("fill", "green")
-        .style("stroke-width", 1)
-        .attr("transform", "translate(-60, 0)");
+    initialize(data, sources, color) {
+        this.brush = d3.brushX()
+            .extent([[0, 0], [this.rect.width, this.rect.height]])
+            .on("brush", () => this.onSelectionChanged())
 
-    var focusLineGroups = g.append("g")
-        .attr("class", "focus")
-        .selectAll("g")
-        .data(sources)
-        .enter()
-        .append("g");
+        domainX(this.x, this.x, data);
+        domainY(this.y, this.y, sources);
 
-    focusLineGroups.append("path")
-        .attr("class", "line")
-        .attr("d", d => line(d.values))
-        .style("stroke", d => color(d.name))
-        .attr("clip-path", "url(#clip)")
-        .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
-        .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
-        .attr("value", d => d.name)
-        .attr("id", d => "focus" + d.name);
+        this.g.append("rect")
+            .attr("width", this.rect.width)
+            .attr("height", this.rect.height)
+            .style("stroke", "black")
+            .style("fill", "green")
+            .style("stroke-width", 1)
+            .attr("transform", "translate(-60, 0)");
 
-    // Axes
-    var height = rect.bottom - rect.top
-    g.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxisTimeline);
+        var focusLineGroups = this.g.append("g")
+            .attr("class", "focus")
+            .selectAll("g")
+            .data(sources)
+            .enter()
+            .append("g");
 
-    g.append("g")
-        .attr("class", "x brush")
-        .call(brush)
-        .selectAll("rect")
-        .attr("y", -6)
-        .attr("height", height);
+        focusLineGroups.append("path")
+            .attr("class", "line")
+            .attr("d", d => this.line(d.values))
+            .style("stroke", d => color(d.name))
+            .attr("clip-path", "url(#clip)")
+            .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
+            .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
+            .attr("value", d => d.name)
+            .attr("id", d => "focus" + d.name);
+
+        // Axes
+        this.g.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + this.rect.height + ")")
+            .call(this.xAxis);
+
+        this.g.append("g")
+            .attr("class", "x brush")
+            .call(this.brush)
+            .selectAll("rect")
+            .attr("y", -6)
+            .attr("height", this.rect.height);
+    }
+
+    onSelectionChanged() {
+        console.log("onSelectionChanged")
+    }
 }

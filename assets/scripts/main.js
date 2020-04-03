@@ -13,7 +13,7 @@
  * Basé sur le code du TP2
  */
 
-function Rect(top, bottom, left, right, margins) {
+function Rect(top, bottom, left, right) {
   this.top = top;
   this.bottom = bottom;
   this.left = left;
@@ -34,13 +34,9 @@ function Rect(top, bottom, left, right, margins) {
   var xGraph = d3.scaleTime().range([0, graphRect.width]);
   var yGraph = d3.scaleLinear().range([graphRect.height, 0]);
 
-  var xTimeline = d3.scaleTime().range([0, timelineRect.width]);
-  var yTimeline = d3.scaleLinear().range([timelineRect.height, 0]);
-
   var xAxisGraph = d3.axisBottom(xGraph).tickFormat(localization.getFormattedDate);
   var yAxisGraph = d3.axisLeft(yGraph);
 
-  var xAxisTimeline = d3.axisBottom(xTimeline).tickFormat(localization.getFormattedDate);
 
   /***** Création des éléments *****/
   var svg = d3.select("body")
@@ -50,8 +46,6 @@ function Rect(top, bottom, left, right, margins) {
 
   var map = svg.append("g")
     .attr("transform", "translate(" + mapRect.left + "," + mapRect.top + ")");
-  var timeline = svg.append("g")
-    .attr("transform", "translate(" + timelineRect.left + "," + timelineRect.top + ")");
   var graph = svg.append("g")
     .attr("transform", "translate(" + graphRect.left + "," + graphRect.top + ")");
 
@@ -65,15 +59,8 @@ function Rect(top, bottom, left, right, margins) {
 
   // Fonctions pour dessiner les lignes
   var lineGraph = createLine(xGraph, yGraph);
-  var lineTimeline = createLine(xTimeline, yTimeline);
 
-  // Permet de redessiner le graphique principal lorsque le zoom/brush est modifié.
-  var brush = d3.brushX()
-    .extent([[0, 0], [timelineRect.width, timelineRect.height]])
-    .on("brush", function () {
-      brushUpdate(graph, lineGraph, xGraph, xTimeline, xAxisGraph, yAxisGraph);
-    });
-
+  var timeline = new Timeline(timelineRect, svg)
   /***** Chargement des données *****/
   d3.csv("./data/2016.csv").then(function (data) {
     /***** Prétraitement des données *****/
@@ -89,6 +76,9 @@ function Rect(top, bottom, left, right, margins) {
 
     createMap(map, sources, lineGraph, color, mapRect);
     createGraph(graph, sources, lineGraph, color, xAxisGraph, yAxisGraph, graphRect);
-    createTimeline(timeline, sources, lineTimeline, color, xAxisTimeline, timelineRect, brush);
+    timeline.initialize(data, sources, color)
+    timeline.onSelectionChanged = function () {
+      brushUpdate(graph, lineGraph, xGraph, timeline.x, xAxisGraph, yAxisGraph);
+    }
   });
 })(d3, localization);
