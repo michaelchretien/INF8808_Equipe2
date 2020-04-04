@@ -17,29 +17,26 @@
 class GraphViz {
     constructor(rect, svg) {
         this.rect = rect;
-        this.x = d3.scaleTime().range([0, rect.width]);
-        this.y = d3.scaleLinear().range([rect.height, 0]);
+        this.x = d3.scaleTime().range([50, rect.width - 50]);
+        this.y = d3.scaleLinear().range([rect.height - 30, 0]);
         this.g = svg.append("g")
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+
         this.line = createLine(this.x, this.y);
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
         this.yAxis = d3.axisLeft(this.y);
 
         // Ajout d'un plan de découpage.
-        this.g.append("defs")
+        svg.select("defs")
             .append("clipPath")
+            .attr("id", "graphviz_clip")
             .append("rect")
-            //.attr("x", rect.left)
-            //.attr("y", rect.top)
-            .attr("width", this.rect.width)
+            .attr("x", 50)
+            .attr("width", this.rect.width - 100)
             .attr("height", this.rect.height);
     }
 
     initialize(data, sources, color) {
-        this.brush = d3.brushX()
-            .extent([[0, 0], [this.rect.width, this.rect.height]])
-            .on("brush", () => this.onSelectionChanged())
-
         domainX(this.x, this.x, data);
         domainY(this.y, this.y, sources);
 
@@ -49,29 +46,29 @@ class GraphViz {
             .style("stroke", "black")
             .style("fill", "none")
             .style("stroke-width", 1)
-            .attr("transform", "translate(-60, 0)");
 
         var contextLineGroups = this.g.append("g")
             .attr("class", "context")
             .selectAll("g")
             .data(sources)
-            .enter().append("g");
+            .enter().append("g")
 
         contextLineGroups.append("path")
             .attr("class", "line")
             .attr("d", d => this.line(d.values))
-            .attr("clip-path", "url(#clip)")
+            .attr("clip-path", "url(#graphviz_clip)")
             .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
             .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
             .attr("id", d => "context" + d.name);
 
         this.g.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + this.rect.height + ")")
+            .attr("transform", "translate(0," + (this.rect.height - 30) + ")")
             .call(this.xAxis);
 
         this.g.append("g")
             .attr("class", "y axis")
+            .attr("transform", "translate(50,0 )")
             .call(this.yAxis);
     }
 

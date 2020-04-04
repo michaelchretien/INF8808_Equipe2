@@ -28,7 +28,6 @@ class MapViz {
             .style("stroke", "black")
             .style("fill", "red")
             .style("stroke-width", 1)
-            .attr("transform", "translate(-60, 0)");
     }
 
     update(newDomain) {

@@ -16,20 +16,20 @@ class Timeline {
     constructor(rect, svg) {
         this.rect = rect;
         this.x = d3.scaleTime().range([0, rect.width]);
-        this.y = d3.scaleLinear().range([rect.height, 0]);
+        this.y = d3.scaleLinear().range([rect.height - 30, 0]);
         this.g = svg.append("g")
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+
         this.line = createLine(this.x, this.y);
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
 
         // Ajout d'un plan de découpage.
-        this.g.append("defs")
+        /*svg.select("defs")
             .append("clipPath")
+            .attr("id", "timeline_clip")
             .append("rect")
-            //.attr("x", rect.left)
-            //.attr("y", rect.top)
             .attr("width", this.rect.width)
-            .attr("height", this.rect.height);
+            .attr("height", this.rect.height);*/
     }
 
     initialize(data, sources, color) {
@@ -46,7 +46,6 @@ class Timeline {
             .style("stroke", "black")
             .style("fill", "green")
             .style("stroke-width", 1)
-            .attr("transform", "translate(-60, 0)");
 
         var focusLineGroups = this.g.append("g")
             .attr("class", "focus")
@@ -64,11 +63,10 @@ class Timeline {
             .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
             .attr("value", d => d.name)
             .attr("id", d => "focus" + d.name);
-
         // Axes
         this.g.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + this.rect.height + ")")
+            .attr("transform", "translate(0," + (this.rect.height - 30) + ")")
             .call(this.xAxis);
 
         this.g.append("g")

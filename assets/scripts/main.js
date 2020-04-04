@@ -28,9 +28,9 @@ class Rect {
   "use strict";
 
   /***** Configuration *****/
-  var mapRect = new Rect(0, 1200, 0, 100);
-  var timelineRect = new Rect(400, 460, 100, 900);
-  var graphRect = new Rect(460, 1200, 100, 900);
+  var mapRect = new Rect(0, 400, 0, 1100);
+  var timelineRect = new Rect(400, 460, 0, 1100);
+  var graphRect = new Rect(460, 1200, 0, 1100);
 
 
   /***** Création des éléments *****/
@@ -38,6 +38,8 @@ class Rect {
     .append("svg")
     .attr("width", 1200)
     .attr("height", 1300);
+
+  svg.append("defs")
 
   // Création des éléments
   var timeline = new Timeline(timelineRect, svg)
