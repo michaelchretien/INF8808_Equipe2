@@ -22,7 +22,7 @@ class GraphViz {
         this.g = svg.append("g")
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
 
-        this.line = createLine(this.x, this.y);
+        this.line = this.createLine(this.x, this.y);
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
         this.yAxis = d3.axisLeft(this.y);
 
@@ -70,6 +70,21 @@ class GraphViz {
             .attr("class", "y axis")
             .attr("transform", "translate(50,0 )")
             .call(this.yAxis);
+    }
+
+    createLine(x, y) {
+        // TODO: Retourner une ligne SVG (voir "d3.line"). Pour l'option curve, utiliser un curveBasisOpen.
+        return d3.line()
+            .defined(function (d) {
+                return !isNaN(d.count);
+            })
+            .x(function (d) {
+                return x(d.date);
+            })
+            .y(function (d) {
+                return y(d.count);
+            })
+            .curve(d3.curveBasisOpen);
     }
 
     update(newDomain) {

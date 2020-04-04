@@ -20,16 +20,23 @@ class Timeline {
         this.g = svg.append("g")
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
 
-        this.line = createLine(this.x, this.y);
+        this.line = this.createLine(this.x, this.y);
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
+    }
 
-        // Ajout d'un plan de découpage.
-        /*svg.select("defs")
-            .append("clipPath")
-            .attr("id", "timeline_clip")
-            .append("rect")
-            .attr("width", this.rect.width)
-            .attr("height", this.rect.height);*/
+    createLine(x, y) {
+        // TODO: Retourner une ligne SVG (voir "d3.line"). Pour l'option curve, utiliser un curveBasisOpen.
+        return d3.line()
+            .defined(function (d) {
+                return !isNaN(d.count);
+            })
+            .x(function (d) {
+                return x(d.date);
+            })
+            .y(function (d) {
+                return y(d.count);
+            })
+            .curve(d3.curveBasisOpen);
     }
 
     initialize(data, sources, color) {

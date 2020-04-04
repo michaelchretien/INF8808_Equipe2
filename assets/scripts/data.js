@@ -76,7 +76,7 @@ function createSources(color, data) {
  * @param xContext    Échelle en X utilisée avec le graphique "contexte".
  * @param data        Données provenant du fichier CSV.
  */
-function domainX(xFocus, xContext, data) {
+function domainX(xContext, xFocus, data) {
   // TODO: Préciser les domaines pour les variables "xFocus" et "xContext" pour l'axe X.
   xFocus.domain(d3.extent(data, function (d) {
     return d.Date;
@@ -91,7 +91,7 @@ function domainX(xFocus, xContext, data) {
  * @param yContext    Échelle en Y utilisée avec le graphique "contexte".
  * @param sources     Données triées par nom de rue et par date (voir fonction "createSources").
  */
-function domainY(yFocus, yContext, sources) {
+function domainY(yContext, yFocus, sources) {
   // TODO: Préciser les domaines pour les variables "yFocus" et "yContext" pour l'axe Y.
   yFocus.domain([
     d3.min(sources, function (c) {
