@@ -28,8 +28,9 @@ class GraphViz {
         // Ajout d'un plan de découpage.
         this.g.append("defs")
             .append("clipPath")
-            .attr("id", "clip")
             .append("rect")
+            //.attr("x", rect.left)
+            //.attr("y", rect.top)
             .attr("width", this.rect.width)
             .attr("height", this.rect.height);
     }

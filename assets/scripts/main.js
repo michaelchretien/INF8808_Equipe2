@@ -32,6 +32,7 @@ class Rect {
   var timelineRect = new Rect(400, 460, 100, 900);
   var graphRect = new Rect(460, 1200, 100, 900);
 
+
   /***** Création des éléments *****/
   var svg = d3.select("body")
     .append("svg")
@@ -52,9 +53,9 @@ class Rect {
     var sources = createSources(color, data);
 
     // Initialisation des élements
-    map.initialize(data, sources, color);
     graphs.initialize(data, sources, color);
     timeline.initialize(data, sources, color);
+    map.initialize(data, sources, color);
 
     // Ajout des callbacks lors des changements de timeline
     timeline.onSelectionChanged = function () {

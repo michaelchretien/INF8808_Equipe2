@@ -21,6 +21,15 @@ class Timeline {
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
         this.line = createLine(this.x, this.y);
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
+
+        // Ajout d'un plan de découpage.
+        this.g.append("defs")
+            .append("clipPath")
+            .append("rect")
+            //.attr("x", rect.left)
+            //.attr("y", rect.top)
+            .attr("width", this.rect.width)
+            .attr("height", this.rect.height);
     }
 
     initialize(data, sources, color) {
