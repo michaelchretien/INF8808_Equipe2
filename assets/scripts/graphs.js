@@ -17,24 +17,19 @@
 class GraphViz {
     constructor(rect, svg) {
         this.rect = rect;
-        /*this.x = d3.scaleLinear()
-            .domain([debutFrise, finFrise])
-            .range([0, rect.width]);*/
+        this.g = svg.append("g")
+            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+
         this.x = d3.scaleTime()
             .range([0, rect.width]);
 
+        this.yGraph1 = d3.scaleLinear()
+            .range([0, rect.height / 2]);
 
-        this.y = d3.scaleLinear()
-            .domain([0, rect.height])
-            .range([0, rect.height]);
-
-        this.g = svg.append("g")
-            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
 
         //this.line = this.createLine(this.x, this.y);
         //this.xAxis = d3.axisBottom(this.x)//.tickFormat(localization.getFormattedDate);
         //this.yAxis = d3.axisLeft(this.y);
-
 
         // Ajout d'un plan de découpage.
         svg.select("defs")
@@ -47,16 +42,29 @@ class GraphViz {
 
     initialize(data, sources, crashes, periods, color) {
         domainX(this.x, crashes);
-        //domainY(this.y, this.y, sources);
 
+        this._addBackground()
+        this._addPeriods(periods)
+        this._addGraph1(crashes)
+        this._addGraph2(crashes)
+    }
+
+    update(newDomain) {
+        this._updatePeriods(newDomain)
+        this._updateGraph1(newDomain)
+        this._updateGraph2(newDomain)
+    }
+
+    _addBackground() {
         this.g.append("rect")
             .attr("width", this.rect.width)
             .attr("height", this.rect.height)
             .style("stroke", "black")
             .style("fill", "none")
             .style("stroke-width", 1)
-
-        /*var contextLineGroups = this.g.append("g")
+    }
+    _addGraph1(crashes) {
+        var contextLineGroups = this.g.append("g")
             .attr("class", "context")
             .selectAll("g")
             .data(sources)
@@ -68,55 +76,21 @@ class GraphViz {
             .attr("clip-path", "url(#graphviz_clip)")
             .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
             .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
-            .attr("id", d => "context" + d.name);*/
+            .attr("id", d => "context" + d.name);
 
-        var height = this.rect.height;
-        var x = this.x
-        // Affichage des périodes	
-        this._addPeriods(periods)
-        /*this.g.append("g")
+        this.g.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + (this.rect.height - 30) + ")")
             .call(this.xAxis);
-    
+
         this.g.append("g")
             .attr("class", "y axis")
             .attr("transform", "translate(50,0 )")
-            .call(this.yAxis);*/
+            .call(this.yAxis);
     }
 
-    createLine(x, y) {
-        // TODO: Retourner une ligne SVG (voir "d3.line"). Pour l'option curve, utiliser un curveBasisOpen.
-        return d3.line()
-            .defined(function (d) {
-                return !isNaN(d.count);
-            })
-            .x(function (d) {
-                return x(d.date);
-            })
-            .y(function (d) {
-                return y(d.count);
-            })
-            .curve(d3.curveBasisOpen);
-    }
+    _addGraph2(crashes) {
 
-    update(newDomain) {
-        // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
-        /*var line = this.line
-        this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
-        this.g.selectAll("rect.period").attr("d", function (d) {
-            return line(d.values)
-        });*/
-        var x = this.x
-        this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
-        this.g.selectAll("rect.period")
-            .attr("x", d => x(d.StartDate))
-            .attr("width", d => x(d.EndDate) - x(d.StartDate));
-
-        this.g.selectAll(".periodName")
-            .attr("x", d => x(this._getMiddleDate(d)))
-        /*this.g.select(".x.axis").call(this.x);
-        this.g.select(".y.axis").call(this.y);*/
     }
 
     _addPeriods(periods) {
@@ -147,6 +121,49 @@ class GraphViz {
             .attr("y", function (d) { return height - 4 })
             .attr("dy", "1.5em")
             .attr("font-weight", "bold");
+    }
+
+    createLine(x, y) {
+        // TODO: Retourner une ligne SVG (voir "d3.line"). Pour l'option curve, utiliser un curveBasisOpen.
+        return d3.line()
+            .defined(function (d) {
+                return !isNaN(d.count);
+            })
+            .x(function (d) {
+                return x(d.date);
+            })
+            .y(function (d) {
+                return y(d.count);
+            })
+            .curve(d3.curveBasisOpen);
+    }
+
+    _updateGraph1(newDomain) {
+        // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
+        /*var line = this.line
+        this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
+        this.g.selectAll("rect.period").attr("d", function (d) {
+            return line(d.values)
+        });*/
+        /*this.g.select(".x.axis").call(this.x);
+        this.g.select(".y.axis").call(this.y);*/
+    }
+
+
+    _updateGraph2(newDomain) {
+
+    }
+
+
+    _updatePeriods(newDomain) {
+        var x = this.x
+        this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
+        this.g.selectAll("rect.period")
+            .attr("x", d => x(d.StartDate))
+            .attr("width", d => x(d.EndDate) - x(d.StartDate));
+
+        this.g.selectAll(".periodName")
+            .attr("x", d => x(this._getMiddleDate(d)))
     }
 
     _getMiddleDate(d) {
