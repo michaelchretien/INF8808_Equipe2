@@ -24,7 +24,7 @@ class Rect {
   }
 }
 
-(function (d3, localization) {
+(async function (d3, localization) {
   "use strict";
 
   /***** Configuration *****/
@@ -47,17 +47,27 @@ class Rect {
   var map = new MapViz(mapRect, svg)
 
   /***** Chargement des données *****/
+
+  var crashes = await d3.csv("./data/with_location_from_gouv_fr.csv")
+  var periods = await d3.csv("./data/periods.csv");
+
   d3.csv("./data/2016.csv").then(function (data) {
     // Prétraitement des données
+    parseDate(data);
+    parseDate(crashes);
+    parsePeriodDate(periods);
+
+    console.log(crashes)
+    console.log(periods)
+
     var color = d3.scaleOrdinal(d3.schemeCategory10);
     domainColor(color, data);
-    parseDate(data);
     var sources = createSources(color, data);
 
     // Initialisation des élements
-    graphs.initialize(data, sources, color);
-    timeline.initialize(data, sources, color);
-    map.initialize(data, sources, color);
+    graphs.initialize(data, sources, crashes, periods, color);
+    timeline.initialize(data, sources, crashes, periods, color);
+    map.initialize(data, sources, crashes, periods, color);
 
     // Ajout des callbacks lors des changements de timeline
     timeline.onSelectionChanged = function () {

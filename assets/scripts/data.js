@@ -26,12 +26,23 @@ function domainColor(color, data) {
  */
 function parseDate(data) {
   // TODO: Convertir les dates du fichier CSV en objet de type Date.
-  var parser = d3.timeParse("%d/%m/%y");
+  var parser = d3.timeParse("%m/%d/%Y");
 
   data.forEach(function (d) {
     d.Date = parser(d.Date);
   });
 }
+
+function parsePeriodDate(data) {
+  // TODO: Convertir les dates du fichier CSV en objet de type Date.
+  var parser = d3.timeParse("%m/%d/%Y");
+
+  data.forEach(function (d) {
+    d.StartDate = parser(d.StartDate);
+    d.EndDate = parser(d.EndDate);
+  });
+}
+
 
 /**
  * Trie les données par nom de rue puis par date.
@@ -76,12 +87,11 @@ function createSources(color, data) {
  * @param xContext    Échelle en X utilisée avec le graphique "contexte".
  * @param data        Données provenant du fichier CSV.
  */
-function domainX(xContext, xFocus, data) {
+function domainX(x, data) {
   // TODO: Préciser les domaines pour les variables "xFocus" et "xContext" pour l'axe X.
-  xFocus.domain(d3.extent(data, function (d) {
+  x.domain(d3.extent(data, function (d) {
     return d.Date;
   }));
-  xContext.domain(xFocus.domain());
 }
 
 /**

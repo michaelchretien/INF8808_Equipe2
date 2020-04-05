@@ -26,9 +26,12 @@ var finFrise = 2020;
 class GraphViz {
     constructor(rect, svg) {
         this.rect = rect;
-        this.x = d3.scaleLinear()
+        /*this.x = d3.scaleLinear()
             .domain([debutFrise, finFrise])
+            .range([0, rect.width]);*/
+        this.x = d3.scaleTime()
             .range([0, rect.width]);
+
 
         this.y = d3.scaleLinear()
             .domain([0, rect.height])
@@ -42,17 +45,16 @@ class GraphViz {
         //this.yAxis = d3.axisLeft(this.y);
 
         // Ajout d'un plan de découpage.
-        /*svg.select("defs")
+        svg.select("defs")
             .append("clipPath")
             .attr("id", "graphviz_clip")
             .append("rect")
-            .attr("x", 50)
-            .attr("width", this.rect.width - 100)
-            .attr("height", this.rect.height);*/
+            .attr("width", this.rect.width)
+            .attr("height", this.rect.height);
     }
 
-    initialize(data, sources, color) {
-        //domainX(this.x, this.x, data);
+    initialize(data, sources, crashes, periods, color) {
+        domainX(this.x, crashes);
         //domainY(this.y, this.y, sources);
 
         this.g.append("rect")
@@ -79,15 +81,15 @@ class GraphViz {
         var height = this.rect.height;
         var x = this.x
         // Affichage des périodes	
-        this.g.append("g").selectAll("periode")
-            .data(periodes)
+        this.g.append("g").selectAll("period")
+            .data(periods)
             .enter().append("rect")
-            .attr("class", "periode")
-            .attr("x", function (d) { return x(d[2]); })
-            //.attr("y", function (d) { return height - 4; })
-            .attr("width", function (d) { return x(d[3]) - x(d[2]); })
+            .attr("class", "period")
+            .attr("x", d => x(d.StartDate))
+            .attr("width", d => x(d.EndDate) - x(d.StartDate))
             .attr("height", height)
-            .attr("fill", function (d) { return "hsl(" + (360 - d[0] * 19) + ",50%,50%)" });
+            .attr("clip-path", "url(#graphviz_clip)")
+            .attr("fill", d => "rgba(51, 204, 255, 128");
 
         this.g.append("g").selectAll(".nomPeriode")
             .data(periodes)
@@ -98,7 +100,7 @@ class GraphViz {
             .attr("class", "nomPeriode")
             .attr("id", function (d) { return "nomPeriode" + d[0]; })
             .attr("text-anchor", "middle")
-            .attr("x", function (d) { return x((d[2] + d[3]) / 2); })
+            .attr("x", d => x((d.EndDate + d.StartDate) / 2))
             .attr("y", function (d) { return height - 4 })
             .attr("dy", "1.5em")
             .attr("font-weight", "bold");
@@ -106,7 +108,7 @@ class GraphViz {
             .attr("class", "x axis")
             .attr("transform", "translate(0," + (this.rect.height - 30) + ")")
             .call(this.xAxis);
-
+    
         this.g.append("g")
             .attr("class", "y axis")
             .attr("transform", "translate(50,0 )")
@@ -132,10 +134,15 @@ class GraphViz {
         // TODO: Redessiner le graphique focus en fonction de la zone sélectionnée dans le graphique contexte.
         /*var line = this.line
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
-        this.g.selectAll("path.line").attr("d", function (d) {
+        this.g.selectAll("rect.period").attr("d", function (d) {
             return line(d.values)
-        });
-        this.g.select(".x.axis").call(this.x);
+        });*/
+        var x = this.x
+        this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
+        this.g.selectAll("rect.period")
+            .attr("x", d => x(d.StartDate))
+            .attr("width", d => x(d.EndDate) - x(d.StartDate));
+        /*this.g.select(".x.axis").call(this.x);
         this.g.select(".y.axis").call(this.y);*/
     }
 

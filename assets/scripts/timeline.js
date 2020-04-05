@@ -39,12 +39,12 @@ class Timeline {
             .curve(d3.curveBasisOpen);
     }
 
-    initialize(data, sources, color) {
+    initialize(data, sources, crashes, periods, color) {
         this.brush = d3.brushX()
             .extent([[0, 0], [this.rect.width, this.rect.height]])
             .on("brush", () => this.onSelectionChanged())
 
-        domainX(this.x, this.x, data);
+        domainX(this.x, crashes);
         domainY(this.y, this.y, sources);
 
         this.g.append("rect")
