@@ -13,15 +13,6 @@
  * Basé sur le code du TP2
  */
 
-// Dates des périodes historiques
-var periodes = [[1, "Première guerre mondiale", 1914, 1918, "http://en.wikipedia.org/wiki/Xia_Dynasty"],
-[2, "Deuxième guerre mondiale", 1939, 1945, "http://en.wikipedia.org/wiki/Shang_Dynasty"],
-];
-
-var debutFrise = 1908;
-var finFrise = 2020;
-
-
 "use strict";
 class GraphViz {
     constructor(rect, svg) {
@@ -43,6 +34,7 @@ class GraphViz {
         //this.line = this.createLine(this.x, this.y);
         //this.xAxis = d3.axisBottom(this.x)//.tickFormat(localization.getFormattedDate);
         //this.yAxis = d3.axisLeft(this.y);
+
 
         // Ajout d'un plan de découpage.
         svg.select("defs")
@@ -81,29 +73,7 @@ class GraphViz {
         var height = this.rect.height;
         var x = this.x
         // Affichage des périodes	
-        this.g.append("g").selectAll("period")
-            .data(periods)
-            .enter().append("rect")
-            .attr("class", "period")
-            .attr("x", d => x(d.StartDate))
-            .attr("width", d => x(d.EndDate) - x(d.StartDate))
-            .attr("height", height)
-            .attr("clip-path", "url(#graphviz_clip)")
-            .attr("fill", d => "rgba(51, 204, 255, 128");
-
-        this.g.append("g").selectAll(".nomPeriode")
-            .data(periodes)
-            .enter().append("a")
-            .attr("xlink:href", function (d) { return d[4]; })
-            .append("text")
-            .text(function (d) { return d[1]; })
-            .attr("class", "nomPeriode")
-            .attr("id", function (d) { return "nomPeriode" + d[0]; })
-            .attr("text-anchor", "middle")
-            .attr("x", d => x((d.EndDate + d.StartDate) / 2))
-            .attr("y", function (d) { return height - 4 })
-            .attr("dy", "1.5em")
-            .attr("font-weight", "bold");
+        this._addPeriods(periods)
         /*this.g.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + (this.rect.height - 30) + ")")
@@ -142,8 +112,44 @@ class GraphViz {
         this.g.selectAll("rect.period")
             .attr("x", d => x(d.StartDate))
             .attr("width", d => x(d.EndDate) - x(d.StartDate));
+
+        this.g.selectAll(".periodName")
+            .attr("x", d => x(this._getMiddleDate(d)))
         /*this.g.select(".x.axis").call(this.x);
         this.g.select(".y.axis").call(this.y);*/
     }
 
+    _addPeriods(periods) {
+        var height = this.rect.height;
+        var x = this.x
+
+        // Barres
+        this.g.append("g").selectAll("period")
+            .data(periods)
+            .enter().append("rect")
+            .attr("class", "period")
+            .attr("x", d => x(d.StartDate))
+            .attr("width", d => x(d.EndDate) - x(d.StartDate))
+            .attr("height", height)
+            .attr("clip-path", "url(#graphviz_clip)")
+            .attr("fill", d => "rgba(51, 204, 255, 128");
+
+        // Texte
+        this.g.append("g").selectAll(".periodName")
+            .data(periods)
+            .enter()
+            .append("text")
+            .text(function (d) { return d.Name; })
+            .attr("class", "periodName")
+            .attr("id", function (d) { return "periodName" + d.Name; })
+            .attr("text-anchor", "middle")
+            .attr("x", d => x(this._getMiddleDate(d)))
+            .attr("y", function (d) { return height - 4 })
+            .attr("dy", "1.5em")
+            .attr("font-weight", "bold");
+    }
+
+    _getMiddleDate(d) {
+        return new Date((d.StartDate.getTime() + d.EndDate.getTime()) / 2)
+    }
 }
