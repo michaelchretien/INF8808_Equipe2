@@ -36,7 +36,7 @@ class GraphViz {
             .attr("height", this.rect.height);
     }
 
-    initialize(data, sources, crashes, periods, color) {
+    initialize(crashes, periods) {
         domainX(this.x, crashes);
 
         this._addBackground()

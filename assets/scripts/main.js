@@ -37,8 +37,9 @@ class Rect {
   var svg = d3.select("body")
     .append("svg")
     .attr("width", 1400)
-    .attr("height", 3000);
+    .attr("height", 1700);
 
+  // Pour définir les clip-paths
   svg.append("defs")
 
   // Création des éléments
@@ -47,27 +48,17 @@ class Rect {
   var map = new MapViz(mapRect, svg)
 
   /***** Chargement des données *****/
+  d3.csv("./data/with_location_from_gouv_fr.csv").then(async function (crashes) {
+    var periods = await d3.csv("./data/periods.csv");
 
-  var crashes = await d3.csv("./data/with_location_from_gouv_fr.csv")
-  var periods = await d3.csv("./data/periods.csv");
-
-  d3.csv("./data/2016.csv").then(function (data) {
     // Prétraitement des données
-    parseDate(data);
     parseDate(crashes);
     parsePeriodDate(periods);
 
-    console.log(crashes)
-    console.log(periods)
-
-    var color = d3.scaleOrdinal(d3.schemeCategory10);
-    domainColor(color, data);
-    var sources = createSources(color, data);
-
     // Initialisation des élements
-    graphs.initialize(data, sources, crashes, periods, color);
-    timeline.initialize(data, sources, crashes, periods, color);
-    map.initialize(data, sources, crashes, periods, color);
+    graphs.initialize(crashes, periods);
+    timeline.initialize(crashes, periods);
+    map.initialize(crashes, periods);
 
     // Ajout des callbacks lors des changements de timeline
     timeline.onSelectionChanged = function () {

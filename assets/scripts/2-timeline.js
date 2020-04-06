@@ -39,13 +39,12 @@ class Timeline {
             .curve(d3.curveBasisOpen);
     }
 
-    initialize(data, sources, crashes, periods, color) {
+    initialize(crashes, periods) {
         this.brush = d3.brushX()
             .extent([[0, 0], [this.rect.width, this.rect.height]])
             .on("brush", () => this.onSelectionChanged())
 
         domainX(this.x, crashes);
-        domainY(this.y, this.y, sources);
 
         this.g.append("rect")
             .attr("width", this.rect.width)
@@ -54,22 +53,6 @@ class Timeline {
             .style("fill", "green")
             .style("stroke-width", 1)
 
-        var focusLineGroups = this.g.append("g")
-            .attr("class", "focus")
-            .selectAll("g")
-            .data(sources)
-            .enter()
-            .append("g");
-
-        focusLineGroups.append("path")
-            .attr("class", "line")
-            .attr("d", d => this.line(d.values))
-            .style("stroke", d => color(d.name))
-            .attr("clip-path", "url(#clip)")
-            .style("stroke", d => (d.name === "Moyenne") ? "black" : color(d.name))
-            .style("stroke-width", d => (d.name === "Moyenne") ? 2 : 1)
-            .attr("value", d => d.name)
-            .attr("id", d => "focus" + d.name);
         // Axes
         this.g.append("g")
             .attr("class", "x axis")
