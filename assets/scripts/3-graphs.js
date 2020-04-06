@@ -25,7 +25,7 @@ class GraphViz {
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
 
         this.graph1 = new ScatterPlot(new Rect(125, 525, 0, this.rect.width), this.g)
-        this.graph2 = new ScatterPlot(new Rect(625, 1025, 0, this.rect.width), this.g)
+        this.graph2 = new ScatterPlot(new Rect(675, 1075, 0, this.rect.width), this.g)
 
         // Ajout d'un plan de découpage.
         svg.select("defs")
