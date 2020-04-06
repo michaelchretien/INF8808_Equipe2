@@ -30,14 +30,14 @@ class Rect {
   /***** Configuration *****/
   var mapRect = new Rect(0, 400, 100, 1200);
   var timelineRect = new Rect(400, 460, 100, 1200);
-  var graphRect = new Rect(460, 1200, 100, 1200);
+  var graphRect = new Rect(460, 1600, 100, 1200);
 
 
   /***** Création des éléments *****/
   var svg = d3.select("body")
     .append("svg")
     .attr("width", 1400)
-    .attr("height", 1300);
+    .attr("height", 3000);
 
   svg.append("defs")
 
