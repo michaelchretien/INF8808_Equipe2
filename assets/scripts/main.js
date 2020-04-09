@@ -31,7 +31,7 @@ class Rect {
   var mapRect = new Rect(0, 400, 100, 1200);
   var sliderRect = new Rect(400, 450, 100, 1200);
   var timelineRect = new Rect(450, 1600, 100, 1200);
-  var graph1Rect = new Rect(550, 950, 100, 1200);
+  var graph1Rect = new Rect(600, 1000, 100, 1200);
   var graph2Rect = new Rect(1125, 1525, 100, 1200);
 
 
