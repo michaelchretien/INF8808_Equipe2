@@ -12,7 +12,7 @@
  *
  * Basé sur le code du TP2
  */
-class Timeline {
+class Slider {
     constructor(rect, svg) {
         this.rect = rect;
         this.x = d3.scaleTime().range([0, rect.width]);

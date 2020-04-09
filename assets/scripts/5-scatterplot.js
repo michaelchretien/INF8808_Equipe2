@@ -26,6 +26,14 @@ class ScatterPlot {
 
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
         this.yAxis = d3.axisLeft(this.y);
+
+        // Ajout d'un plan de découpage
+        svg.select("defs")
+            .append("clipPath")
+            .attr("id", "scatterplot_clip")
+            .append("rect")
+            .attr("width", this.rect.width)
+            .attr("height", this.rect.height);
     }
 
     initialize(crashes, periods) {
@@ -82,7 +90,7 @@ class ScatterPlot {
             .append("circle")
             .attr("cx", d => x(d.Date))
             .attr("cy", d => y(d.Fatalities))
-            .attr("clip-path", "url(#graphviz_clip)")
+            .attr("clip-path", "url(#scatterplot_clip)")
             .attr("r", 1.5)
             .style("fill", "black")
     }

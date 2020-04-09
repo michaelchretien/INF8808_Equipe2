@@ -29,8 +29,10 @@ class Rect {
 
   /***** Configuration *****/
   var mapRect = new Rect(0, 400, 100, 1200);
-  var timelineRect = new Rect(400, 460, 100, 1200);
-  var graphRect = new Rect(460, 1600, 100, 1200);
+  var sliderRect = new Rect(400, 450, 100, 1200);
+  var timelineRect = new Rect(450, 1600, 100, 1200);
+  var graph1Rect = new Rect(550, 950, 100, 1200);
+  var graph2Rect = new Rect(1125, 1525, 100, 1200);
 
 
   /***** Création des éléments *****/
@@ -43,9 +45,11 @@ class Rect {
   svg.append("defs")
 
   // Création des éléments
-  var timeline = new Timeline(timelineRect, svg)
-  var graphs = new GraphViz(graphRect, svg)
   var map = new MapViz(mapRect, svg)
+  var slider = new Slider(sliderRect, svg)
+  var timeline = new Timeline(timelineRect, svg)
+  var graph1 = new ScatterPlot(graph1Rect, svg)
+  var graph2 = new ScatterPlot(graph2Rect, svg)
 
   /***** Chargement des données *****/
   d3.csv("./data/with_location_from_gouv_fr.csv").then(async function (crashes) {
@@ -56,14 +60,18 @@ class Rect {
     parsePeriodDate(periods);
 
     // Initialisation des élements
-    graphs.initialize(crashes, periods);
+    slider.initialize(crashes, periods)
     timeline.initialize(crashes, periods);
+    graph1.initialize(crashes, periods)
+    graph2.initialize(crashes, periods);
     map.initialize(crashes, periods);
 
     // Ajout des callbacks lors des changements de timeline
-    timeline.onSelectionChanged = function () {
-      graphs.update(timeline.x)
-      map.update(timeline.x)
+    slider.onSelectionChanged = function () {
+      map.update(slider.x);
+      timeline.update(slider.x);
+      graph1.update(slider.x)
+      graph2.update(slider.x);
     }
   });
 })(d3, localization);
