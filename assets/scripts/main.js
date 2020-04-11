@@ -48,7 +48,7 @@ class Rect {
   var map = new MapViz(mapRect, svg)
   var slider = new Slider(sliderRect, svg)
   var timeline = new Timeline(timelineRect, svg)
-  var graph1 = new ScatterPlot(graph1Rect, svg)
+  var graph1 = new LineChart(graph1Rect, svg)
   var graph2 = new ScatterPlot(graph2Rect, svg)
 
   /***** Chargement des données *****/
