@@ -50,6 +50,7 @@ class Rect {
   var timeline = new Timeline(timelineRect, svg)
   var graph1 = new LineChart(graph1Rect, svg)
   var graph2 = new ScatterPlot(graph2Rect, svg)
+  var tooltip = new Tooltip(svg)
 
   /***** Chargement des données *****/
   d3.csv("./data/with_location_from_gouv_fr.csv").then(async function (crashes) {
@@ -62,9 +63,10 @@ class Rect {
     // Initialisation des élements
     slider.initialize(crashes, periods)
     timeline.initialize(crashes, periods);
-    graph1.initialize(crashes, periods)
+    graph1.initialize(crashes, periods, tooltip)
     graph2.initialize(crashes, periods);
     map.initialize(crashes, periods);
+    tooltip.initialize();
 
     // Ajout des callbacks lors des changements de timeline
     slider.onSelectionChanged = function () {

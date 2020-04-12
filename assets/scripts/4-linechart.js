@@ -61,15 +61,34 @@ class LineChart {
             .style("stroke-width", 1)
             .attr("id", d => "context" + d.Date);
 
+        // Axe horizontal
         this.g.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + this.rect.height + ")")
             .call(this.xAxis);
 
+        // Titre axe horizontal
+        this.g.append("text")
+            .attr("transform",
+                "translate(" + (this.rect.width - 5) + " ," +
+                (this.rect.height - 6) + ")")
+            .style("text-anchor", "end")
+            .text("Date");
+
+        // Axe vertical
         this.g.append("g")
             .attr("class", "y axis")
             .attr("transform", "translate(0,0 )")
             .call(this.yAxis);
+
+        // Titre axe vertical
+        this.g.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("y", 6)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("Nombre de décès");
 
         // Titre
         this.g.append("text")
