@@ -36,27 +36,34 @@ class LineChart {
             .append("rect")
             .attr("width", this.rect.width)
             .attr("height", this.rect.height);
+
+        this.tooltip = new Tooltip(this.g, this.rect)
+        this.tooltip.getPosition = (x, y) => this._getTooltipPosition(x, y);
+        this.tooltip.getContent = (d) => this._getTooltipContent(d);
     }
 
     initialize(crashes, periods) {
         domainX(this.x, crashes);
         this.y.domain([3000, 0])
 
-        var data = d3.nest()
-            .key(d => d.Date.getFullYear())
-            .rollup(v => d3.sum(v, d => d.Fatalities))
-            .object(crashes);
+        this.data = Object.entries(
+            d3.nest()
+                .key(d => d.Date.getFullYear())
+                .rollup(v => d3.sum(v, d => d.Fatalities))
+                .object(crashes)
+        );
 
         var lineGroups = this.g.append("g")
             .attr("class", "context")
             .selectAll("g")
-            .data([Object.entries(data)])
+            .data([this.data])
             .enter().append("g")
 
         lineGroups.append("path")
             .attr("class", "line")
             .attr("d", d => this.line(d))
             .attr("clip-path", "url(#linechart_clip)")
+            .style("pointer-events", "none")
             .style("stroke", "black")
             .style("stroke-width", 1)
             .attr("id", d => "context" + d.Date);
@@ -101,6 +108,7 @@ class LineChart {
     }
 
     update(newDomain) {
+        this.tooltip.hide()
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
 
         var line = this.line
@@ -118,6 +126,29 @@ class LineChart {
             .defined(d => !isNaN(d[1]))
             .x(d => x(parser(d[0])))
             .y(d => y(d[1]))
-            .curve(d3.curveBasisOpen);
+            .curve(d3.curveMonotoneX);
+    }
+
+    _getTooltipPosition(x, y) {
+        var parser = d3.timeParse("%Y");
+        var bisectDate = d3.bisector(function (d) { return parser(d[0]); }).left
+
+        var x0 = this.x.invert(x),
+            i = bisectDate(this.data, x0, 1),
+            d0 = this.data[i - 1],
+            d1 = this.data[i],
+            d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
+
+        this.currentDataElement = d
+
+        //console.log(d[0])
+        //console.log(this.x(parser(d[0])), this.y(d[1]))
+        return [this.x(parser(d[0])), this.y(d[1])]
+    }
+
+    _getTooltipContent(d) {
+        // TODO ajouter plus de détail dans le tooltip
+        return this.currentDataElement[0]
+            + "<br>" + "Nombre de morts: " + this.currentDataElement[1]
     }
 }

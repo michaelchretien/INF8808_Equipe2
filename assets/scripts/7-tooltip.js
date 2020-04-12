@@ -13,8 +13,9 @@
  * Basé sur le code du TP2
  */
 class Tooltip {
-    constructor(svg) {
-        this.tip = svg.append("g")
+    constructor(g, rect) {
+        this.g = g
+        this.tip = g.append("g")
             .attr("id", "tooltip")
             .style("display", "none");
 
@@ -25,37 +26,53 @@ class Tooltip {
             .style("stroke", "blue")
             .attr("r", 4);
 
+        this.tool_tip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([-8, 0])
+            .html(d => this.getContent(d));
+        g.call(this.tool_tip);
+
         // append the rectangle to capture mouse       
-        /*svg.append("rect")
-            .attr("width", 1400)
-            .attr("height", 1700)
-            .style("fill", "none")
+        g.append("rect")
+            .attr("width", rect.width)
+            .attr("height", rect.height)
+            .attr("fill", "none")
             .style("pointer-events", "all")
-            .on("mouseover", _ => this.tip.style("display", null))
-            .on("mouseout", _ => this.tip.style("display", "none"))
-            .on("mousemove", this.mousemove);*/
-    }
+            .on('mouseover', d => {
+                this.show()
+                this.tool_tip.show(d, this.tip.node())
+            })
+            .on('mouseout', this.tool_tip.hide)
+            .on("mousemove", _ => this.mousemove());
 
-    initialize() {
-    }
-
-    update(newDomain) {
+        //this.show();
     }
 
     show(content) {
-
+        this.tip.style("display", null)
+        console.log("show")
     }
 
     hide() {
+        console.log("hide")
+        this.tip.style("display", "none")
+    }
 
+    getPosition(x, y) {
+        // Override la méthode par les components pour 
+        // fixer le tip sur une ligne par exemple
+        return [x, y]
+    }
+
+    getContent(d) {
+        return "default"
     }
 
     mousemove() {
-        var x = d3.mouse(this)[0],
-            y = d3.mouse(this)[1];
-        d3.select("#tooltip")
-            .attr("transform",
-                "translate(" + x + "," +
-                y + ")");
+        var mousePos = d3.mouse(this.g.node())
+        var fixedPos = this.getPosition(mousePos[0], mousePos[1])
+        this.tip.attr("transform", "translate(" + fixedPos[0] + "," + fixedPos[1] + ")");
+        this.tool_tip.show()
+        //this.tool_tip.offset([-250, -50])
     }
 }
