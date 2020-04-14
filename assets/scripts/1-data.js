@@ -89,8 +89,9 @@ function createSources(color, data) {
  */
 function domainX(x, data) {
   // TODO: Préciser les domaines pour les variables "xFocus" et "xContext" pour l'axe X.
+  var parser = d3.timeParse("%Y");
   x.domain(d3.extent(data, function (d) {
-    return d.Date;
+    return parser(d.Date.getFullYear());
   }));
 }
 
