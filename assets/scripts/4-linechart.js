@@ -41,7 +41,7 @@ class LineChart {
         this.tooltip.getPosition = (x, y) => this._getTooltipPosition(x, y);
         this.tooltip.getCirclePosition = (x, y) => this._getCirclePositions(x, y);
         this.tooltip.getLinePosition = (x, y) => this._getLinePosition(x, y);
-        this.tooltip.getContent = (d) => this._getTooltipContent(this.currentDataElement);
+        this.tooltip.getContent = (d) => this._getTooltipContent(this.currentYear);
     }
 
     initialize(crashes, periods) {
@@ -49,22 +49,10 @@ class LineChart {
         this.y.domain([3000, 0])
 
         this.data = d3.nest()
-            //.key(d => "key")
             .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
             .key(d => d.Date.getFullYear())
             .sortKeys(d3.descending)
             .entries(crashes);
-
-        //var data2 = [Object.entries(data[0].values), Object.entries(data[1].values)]
-
-        console.log(this.data[0].values)
-
-        /*this.data = Object.entries(
-            d3.nest()
-                .key(d => d.Date.getFullYear())
-                .rollup(v => d3.sum(v, d => d.Fatalities))
-                .object(crashes)
-        );*/
 
         var lineGroups = this.g.append("g")
             .attr("class", "context")
@@ -135,62 +123,48 @@ class LineChart {
     _createLine(x, y) {
         var parser = d3.timeParse("%Y");
         return d3.line()
-            //.defined(d => !isNaN(d))
             .x(d => x(parser(d.key)))
-            .y(d => y(d3.sum(d.values, d => d.Fatalities)))
+            .y(d => y(this._getTotalFatalities(d.values)))
             .curve(d3.curveMonotoneX);
     }
 
-    _getTooltipPosition(x, y) {
-        var parser = d3.timeParse("%Y");
-        var bisectDate = d3.bisector(function (d) { return parser(d.key); }).left
-
-        var x0 = this.x.invert(x)
-        console.log(x0)
-        var i = bisectDate(this.data, x0, 1),
-            d0 = this.data[i - 1],
-            d1 = this.data[i],
-            d = x0 - d0[0] > d1[0] - x0 ? d1 : d0;
-
-        this.currentDataElement = d
-        return [this.x(parser(d.key)), 0]
+    _getTooltipYear(mousePosX) {
+        var reversed_date = this.x.invert(mousePosX)
+        this.currentYear = d3.timeParse("%Y")(reversed_date.getFullYear() + (reversed_date.getMonth() > 5 ? 1 : 0))
+        return this.currentYear
     }
 
     _getLinePosition(x, y) {
-        var reversed_date = this.x.invert(x)
-        var year = reversed_date.getFullYear() + (reversed_date.getMonth() > 5 ? 1 : 0)
+        return [this.x(this._getTooltipYear(x)), 0]
+    }
 
-        var parser = d3.timeParse("%Y");
-        return [this.x(parser(year)), 0]
+    _getTotalFatalities(values) {
+        return d3.sum(values, e => e.Fatalities)
     }
 
     _getCirclePositions(x, y) {
-        var reversed_date = this.x.invert(x)
-        var year = reversed_date.getFullYear() + (reversed_date.getMonth() > 5 ? 1 : 0)
+        return this._getValues(this._getTooltipYear(x))
+            .map(values => values ? this.y(this._getTotalFatalities(values)) : 0)
+    }
 
+    _getValues(date) {
         var findYearIndex = (data) => {
-            return data.values.findIndex(d => d.key == year)
+            return data.values.findIndex(d => d.key == date.getFullYear())
         }
 
-        var test = this.data.map(
+        return this.data.map(
             d => {
-                var index = findYearIndex(d)
-                if (index == -1)
-                    return 0
-                else
-                    return d3.sum(d.values[index].values, e => e.Fatalities)
+                var values = d.values[findYearIndex(d)]
+                return values ? values.values : []
             }
         )
-        //console.log(test)
-        var yAxis = this.y
-        return test.map(d => yAxis(d))
     }
 
     _getTooltipContent(d) {
         // TODO ajouter plus de détail dans le tooltip
-        /*console.log(d)
-        return this.currentDataElement.key
-            + "<br>" + "Nombre de morts: " //+ this.currentDataElement.values.Fatalities*/
-        return "test"
+        var values = this._getValues(d)
+        return d.getFullYear()
+            + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
+            + "<br>" + "Nombre de morts militaires: " + this._getTotalFatalities(values[0])
     }
 }
