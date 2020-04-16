@@ -96,9 +96,7 @@ class Slider {
             .on('end', function () {
                 if (!d3.event.sourceEvent) return;
                 var d0 = d3.event.selection.map(x.invert);
-                //console.log(d0)
                 var d1 = d0.map(d => parser(d.getFullYear()))
-                console.log(d1)
                 d3.select(this).transition().call(d3.event.target.move, d1.map(x))
             })
 

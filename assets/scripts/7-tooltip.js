@@ -14,23 +14,24 @@
  */
 class Tooltip {
     constructor(g, rect) {
-        this.g = g
-        this.tip = g.append("g")
-            .attr("id", "tooltip")
-            .style("display", "none");
+        this.parent = g
+        this.g = g.append("g")
+        //.attr("id", "tooltip")
+        //.style("display", "none");
 
-        // Ajout du tooltip
-        this.tip.append("circle")
-            .attr("class", "y")
-            .style("fill", "none")
+        this.g.append("line")
+            .attr("x1", 0)
+            .attr("y1", 0)
+            .attr("x2", 0)
+            .attr("y2", rect.height)
             .style("stroke", "blue")
-            .attr("r", 4);
 
-        this.tool_tip = d3.tip()
+        this.tip = d3.tip()
             .attr("class", "d3-tip")
             .offset([-8, 0])
             .html(d => this.getContent(d));
-        g.call(this.tool_tip);
+
+        this.parent.call(this.tip);
 
         // append the rectangle to capture mouse       
         g.append("rect")
@@ -38,41 +39,61 @@ class Tooltip {
             .attr("height", rect.height)
             .attr("fill", "none")
             .style("pointer-events", "all")
-            .on('mouseover', d => {
-                this.show()
-                this.tool_tip.show(d, this.tip.node())
-            })
-            .on('mouseout', this.tool_tip.hide)
+            .on('mouseover', d => this.show(d))
+            .on('mouseout', d => this.hide(d))
             .on("mousemove", _ => this.mousemove());
 
         //this.show();
     }
 
-    show(content) {
-        this.tip.style("display", null)
-        console.log("show")
+    show(d) {
+        this.tip.show(d, this.g.node())
+        this.g.style("display", null)
     }
 
-    hide() {
-        console.log("hide")
-        this.tip.style("display", "none")
+    hide(d) {
+        this.tip.hide(d)
+        this.g.style("display", "none")
     }
 
     getPosition(x, y) {
         // Override la méthode par les components pour 
         // fixer le tip sur une ligne par exemple
-        return [x, y]
+        return [x, y] // tipPos, linePos, circlePos
     }
 
     getContent(d) {
         return "default"
     }
 
+    getLinePosition(x, y) {
+        return [x, 0]
+    }
+
+    getCirclePosition(x, y) {
+        return []
+    }
+
     mousemove() {
-        var mousePos = d3.mouse(this.g.node())
-        var fixedPos = this.getPosition(mousePos[0], mousePos[1])
-        this.tip.attr("transform", "translate(" + fixedPos[0] + "," + fixedPos[1] + ")");
-        this.tool_tip.show()
-        //this.tool_tip.offset([-250, -50])
+        var [x, y] = d3.mouse(this.parent.node())
+        var linePos = this.getLinePosition(x, y)
+        this.g.attr("transform", "translate(" + linePos[0] + "," + linePos[1] + ")");
+        this.show()
+
+        var circles = this.g.selectAll("circle")
+            .data(this.getCirclePosition(x, y))
+
+        circles.exit().remove()
+
+        circles.enter()
+            .append("circle")
+            .attr("class", "y")
+            .style("fill", "none")
+            .style("stroke", "blue")
+            .attr("r", 4);
+
+        circles.transition()
+            .duration(0)
+            .attr("cy", d => d)
     }
 }
