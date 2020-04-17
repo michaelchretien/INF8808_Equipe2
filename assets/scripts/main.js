@@ -57,7 +57,7 @@ class Rect {
 
     // Prétraitement des données
     parseDate(crashes);
-    parsePeriodDate(periods);
+    parseDate(periods, ["StartDate", "EndDate"]);
 
     // Initialisation des élements
     slider.initialize(crashes, periods)
