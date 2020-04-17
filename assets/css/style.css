@@ -3,10 +3,10 @@ body {
   margin: 20px auto auto;
   font-family: Arial, sans-serif;
 }
-
+/* 
 svg {
   background-color: white;
-}
+} */
 .axis {
   shape-rendering: crispEdges
 }
@@ -118,4 +118,8 @@ rect.selection {
   margin: -4px 0 0 -1px;
   top: 50%;
   left: 100%;
+}
+
+#map {
+  height: 800px;
 }
