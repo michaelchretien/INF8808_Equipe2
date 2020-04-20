@@ -55,12 +55,12 @@ class Rect {
     Promise.all([
         d3.csv("./data/with_location_from_gouv_fr.csv"),
         d3.csv("./data/periods.csv"),
-        d3.json("./data/places-location.json")
+        d3.json("./data/locations-coordinates.json")
     ])
         .then((data) => {
             const crashes = data[0];
             const periods = data[1];
-            const placesLocation = data[2];
+            const locationsCoordinates = data[2];
 
             // Prétraitement des données
             parseDate(crashes);
@@ -71,7 +71,7 @@ class Rect {
             timeline.initialize(crashes, periods);
             graph1.initialize(crashes, periods)
             graph2.initialize(crashes, periods);
-            map.initialize(crashes, placesLocation);
+            map.initialize(crashes, locationsCoordinates);
 
             // Ajout des callbacks lors des changements de timeline
             slider.onSelectionChanged = () => {

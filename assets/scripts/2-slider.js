@@ -21,7 +21,9 @@ class Slider {
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
 
         this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
-        this.svg = svg
+        this.svg = svg;
+
+        this._lastUpdate = Date.now();
     }
 
     initialize(crashes, periods) {
@@ -52,13 +54,21 @@ class Slider {
                 var s = d3.event.selection;
                 handle.attr("display", null)
                     .attr("transform", (d, i) => "translate(" + [s[i], - this.rect.height / 4] + ")");
-                this.onSelectionChanged()
+
+                // const now = Date.now();
+                // if (now - this._lastUpdate > 100) {
+                //     this.onSelectionChanged();
+                //     this._lastUpdate = now;
+                // }
             })
             .on('end', function () {
                 if (!d3.event.sourceEvent) return;
                 var d0 = d3.event.selection.map(x.invert);
                 var d1 = d0.map(d => parseYear(d.getFullYear()))
                 d3.select(this).transition().call(d3.event.target.move, d1.map(x))
+            })
+            .on("end", () => {
+                this.onSelectionChanged();
             })
 
         var gBrush = this.g.append("g")

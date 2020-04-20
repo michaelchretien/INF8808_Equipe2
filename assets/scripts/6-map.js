@@ -15,30 +15,29 @@
 
 "use strict";
 class MapViz {
+
+    static _MAP_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png";
+
     constructor(L) {
         const options = {
-            "worldCopyJump": true
+            worldCopyJump: true,
+            preferCanvas: true,
+            center: [
+                34,
+                10
+            ],
+            zoom: 2,
+            minZoom: 2,
+            maxZoom: 13
         };
-        this.map = L.map("map", options);
-        this.markers = [];
+        this._map = L.map("map", options);
+
+        L.tileLayer(MapViz._MAP_URL)
+            .addTo(this._map);
     }
 
-    initialize(crashes, placesLocation) {
-        this.placesLocation = placesLocation;
-        this.crashes = crashes;
-
-        const coordinates = [34, 10];
-        const zoom = 2;
-        this.map.setView(coordinates, zoom);
-
-        const url = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png";
-        const options = {
-            maxZoom: 10,
-            minZoom: zoom
-        };
-
-        L.tileLayer(url, options)
-            .addTo(this.map);
+    initialize(crashes, locationsCoordinates) {
+        this._markers = MapViz._generateMarkers(crashes, locationsCoordinates);
 
         this.update();
     }
@@ -46,126 +45,88 @@ class MapViz {
     update(domain) {
         this._removeMarkers();
 
-        const currentCrashes = this._getCrashesFromDomain(domain);
-        for (const crash of currentCrashes) {
-            this._addMarker(crash.Location);
+        const markersToDisplay = this._getMarkersFromDomain(domain);
+        for (const marker of markersToDisplay) {
+            this._map.addLayer(marker.marker);
         }
     }
 
-    _getCrashesFromDomain(domain) {
-        return this.crashes
-            .filter((crash) => {
-                // TODO Filtrer les crash par rapport au domaine
-                return true;
-            });
+    _getMarkersFromDomain(domain) {
+        if (!domain) {
+            return this._markers;
+        }
+
+        const [start, end] = d3.event.selection.map(domain.invert);
+
+        return this._markers.filter(({ date }) => {
+            return MapViz._dateIsBetween(date, start, end);
+        });
     }
 
-    _addMarker(place) {
-        if (!place || !this.placesLocation[place]) {
+    _removeMarkers() {
+        for (const marker of this._markers) {
+            this._map.removeLayer(marker.marker);
+        }
+    }
+
+    _getCoordinates(place) {
+        if (!place) {
             return;
         }
 
-        const location = this.placesLocation[place];
+        return this._locationsCoordinates[place];
+    }
 
-        // TODO Peut-être faire en sorte que le radius est plus grand lorsqu'il y a plus qu'un écrasement à une coordonnée
+    static _generateMarkers(crashes, locationsCoordinates) {
+        const markers = [];
+
+        for (const crash of crashes) {
+            const location = crash.Location;
+            if (!location) {
+                continue;
+            }
+
+            const coordinates = locationsCoordinates[location];
+            if (!coordinates) {
+                continue;
+            }
+
+            const isMilitary = MapViz._isMilitary(crash);
+            const marker = MapViz._generateMarker(coordinates, isMilitary);
+            if (!marker) {
+                continue;
+            }
+
+            const date = crash.Date;
+            markers.push({
+                date: date,
+                marker: marker
+            });
+        }
+
+        return markers;
+    }
+
+    static _generateMarker(coordinates, isMilitary) {
         // TODO Changer la couleur par rapport à si c'est un vol militaire ou commercial
+        // TODO Peut-être faire en sorte que le radius est plus grand lorsqu'il y a plus qu'un écrasement à une coordonnée
         const options = {
             color: "red",
             fillColor: "#FF0033",
             fillOpacity: 0.5,
             radius: 50
         };
-        const marker = L.circle([location.lat, location.lng], options);
-        marker.addTo(this.map);
-        this.markers.push(marker);
+        return L.circle(coordinates, options);
     }
 
-    _removeMarkers() {
-        for (const marker of this.markers) {
-            this.map.removeLayer(marker);
-        }
-
-        this.markers = [];
+    static _isMilitary(crash) {
+        // TODO
+        return true;
     }
 
-    // Method used for prefetching the locations for all crashes
-    async _getPlacesLocation(crashes) {
-        const places = crashes.map((crash) => {
-            return crash.Location;
-        });
-
-        const placesLocation = {};
-
-        places.reduce((p, x) => {
-            return p.then(_ => this._getPlaceLocation(x));
-        },
-            Promise.resolve());
-
-        for (let i = 0; i < places.length; i++) {
-            const place = places[i];
-            const location = await this._getPlaceLocation(place);
-            placesLocation[place] = location;
-            console.log(i);
-            console.log(placesLocation);
-        }
-    }
-
-    // Method used for prefetching the locations for all crashes
-    _getPlaceLocation(name) {
-        const apiKey = "";
-        const place = encodeURIComponent(name);
-        const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${place}&inputtype=textquery&key=${apiKey}`;
-        const options = {
-            mode: "cors",
-            headers: {
-                "Access-Control-Allow-Origin": "*"
-            },
-        };
-
-        return fetch(url, options)
-            .then((response) => {
-                if (!response.ok) {
-                    console.log(response);
-                    throw new Error("FindPlaceFromText: fetch error");
-                }
-
-                return response.json();
-            })
-            .then((response) => {
-                if (response.status !== "OK") {
-                    console.log(response);
-                    throw new Error("FindPlaceFromText: API error");
-                }
-
-                if (!response.candidates || response.candidates.length === 0) {
-                    console.log(response);
-                    throw new Error("FindPlaceFromText: No candidate");
-                }
-
-                return response.candidates[0].place_id;
-            })
-            .then((placeID) => {
-                return fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeID}&key=${apiKey}`)
-            })
-            .then((response) => {
-                if (!response.ok) {
-                    console.log(response);
-                    throw new Error("Details: fetch error");
-                }
-
-                return response.json();
-            })
-            .then((response) => {
-                if (response.status !== "OK") {
-                    console.log(response);
-                    throw new Error("Details: API error");
-                }
-
-                return response.result.geometry.location;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+    static _dateIsBetween(date, start, end) {
+        return start.valueOf() <= date.valueOf()
+            && date.valueOf() < end.valueOf();
     }
 
 }
