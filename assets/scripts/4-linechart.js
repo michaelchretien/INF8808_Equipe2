@@ -47,11 +47,7 @@ class LineChart {
     initialize(crashes, periods) {
         domainX(this.x, crashes);
 
-        this.data = d3.nest()
-            .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
-            .key(d => d.Date.getFullYear())
-            .sortKeys(d3.descending)
-            .entries(crashes);
+        this.data = this._prepareData(crashes)
 
         this._updateDomainY()
 
@@ -122,6 +118,27 @@ class LineChart {
         this.g.select(".x.axis").call(this.xAxis);
         this.g.select(".y.axis").call(this.yAxis);
 
+    }
+
+    _prepareData(crashes) {
+        var data = d3.nest()
+            .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
+            .key(d => d.Date.getFullYear())
+            .sortKeys(d3.ascending)
+            .entries(crashes);
+
+        var minYear = this.x.domain()[0].getFullYear(),
+            maxYear = this.x.domain()[1].getFullYear();
+
+        data.forEach(type => {
+            var i = 0
+            for (var year = minYear; year <= maxYear; year++) {
+                if (type.values[i].key != year)
+                    type.values.splice(i, 0, {key: year, values: []})
+                i++
+            }
+        })
+        return data
     }
 
     _updateDomainY() {
@@ -195,7 +212,7 @@ class LineChart {
 
         if (d == undefined)
             return ""
-            
+
         var values = this._getValues(d)
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
