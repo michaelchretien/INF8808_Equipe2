@@ -62,7 +62,17 @@ class LineChart {
             .attr("d", d => this.line(d))
             .attr("clip-path", "url(#linechart_clip)")
             .style("pointer-events", "none")
-            .style("stroke", "red")
+            .style("stroke", (years) => {
+                for (const year of years) {
+                    if (!year.values || year.values.length === 0) {
+                        continue;
+                    }
+
+                    return year.values[0].Operator.includes("Military") ? "red" : "orange";
+                }
+
+                return "orange";
+            })
             .style("stroke-width", 2)
             .attr("id", d => "context" + d.key);
 
@@ -75,8 +85,8 @@ class LineChart {
         // Titre axe horizontal
         this.g.append("text")
             .attr("transform",
-                "translate(" + (this.rect.width - 5) + " ," +
-                (this.rect.height - 6) + ")")
+                "translate(" + (this.rect.width - 10) + " ," +
+                (this.rect.height + 40) + ")")
             .style("text-anchor", "end")
             .text("Date");
 

@@ -111,10 +111,10 @@ class MapViz {
     static _generateMarker(coordinates, isMilitary) {
         // TODO Peut-être faire en sorte que le radius est plus grand lorsqu'il y a plus qu'un écrasement à une coordonnée
         const options = {
-            color: isMilitary ? "red" : "blue",
-            fillColor: isMilitary ? "#FF0033" : "3300FF",
+            color: isMilitary ? "red" : "orange",
+            fillColor: isMilitary ? "red" : "orange",
             fillOpacity: 0.5,
-            radius: 50
+            radius: 2000
         };
         return L.circle(coordinates, options);
     }

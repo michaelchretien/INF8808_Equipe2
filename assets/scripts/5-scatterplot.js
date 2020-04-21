@@ -65,8 +65,8 @@ class ScatterPlot {
         // Titre axe horizontal
         this.g.append("text")
             .attr("transform",
-                "translate(" + this.rect.width + " ," +
-                (this.rect.height + 20) + ")")
+                "translate(" + (this.rect.width - 10) + " ," +
+                (this.rect.height + 40) + ")")
             .style("text-anchor", "end")
             .text("Date");
 
@@ -93,9 +93,9 @@ class ScatterPlot {
             .attr("cx", d => x(d.Date))
             .attr("cy", d => y(d.Fatalities))
             .attr("clip-path", "url(#scatterplot_clip)")
-            .attr("r", 1.5)
+            .attr("r", 2)
             .style("fill", function(d, i) {
-                return d.Operator.includes("Military") ? "red" : "blue";
+                return d.Operator.includes("Military") ? "red" : "orange";
             })
     }
 
