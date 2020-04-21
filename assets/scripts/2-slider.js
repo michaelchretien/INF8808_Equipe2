@@ -24,6 +24,7 @@ class Slider {
         this.svg = svg;
 
         this._lastUpdate = Date.now();
+        this._isLiveUpdate = false;
     }
 
     initialize(crashes, periods) {
@@ -49,6 +50,8 @@ class Slider {
 
         // Ajout du brush
         var onSelectionChanged = () => this.onSelectionChanged();
+        var setLiveUpdate = (enabled) => this._isLiveUpdate = enabled;
+
         var brush = d3.brushX()
             .extent([[0, 0], [this.rect.width, this.rect.height]])
             .on('brush', () => {
@@ -61,13 +64,18 @@ class Slider {
                 //     this.onSelectionChanged();
                 //     this._lastUpdate = now;
                 // }
+                if(this._isLiveUpdate)
+                    onSelectionChanged()
             })
             .on('end', function () {
                 if (!d3.event.sourceEvent) return;
                 var d0 = d3.event.selection.map(x.invert);
                 var d1 = d0.map(d => parseYear(d.getFullYear()))
-                d3.select(this).transition().call(d3.event.target.move, d1.map(x))
-                onSelectionChanged()
+                d3.select(this)
+                    .transition()
+                    .call(d3.event.target.move, d1.map(x))
+                    .on("start", _ => setLiveUpdate(true))
+                    .on("end", _ => setLiveUpdate(false));
             })
 
         var gBrush = this.g.append("g")
