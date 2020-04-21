@@ -133,9 +133,14 @@ class MapViz {
     static _getTooltipContent(c) {
         var parseDate = d3.timeFormat("%Y/%m/%d");
  
+        console.log('c', c)
+
         return "<b>" + c.Location + "</b>" +
-            "<br>" + parseDate(c.Date) +
-            "<br>"
+            "<br><b>Date</b> : " + parseDate(c.Date) + " " + c.Time +
+            "<br><b>Opérateur</b> : " + c.Operator +
+            "<br><b>Route</b> : " + c.Route +
+            "<br><b>Morts</b> : " + c.Fatalities +
+            "<br><b>Survivants</b> : " + c.Survivors
     }
 
 }
