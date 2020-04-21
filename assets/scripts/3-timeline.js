@@ -17,6 +17,7 @@
 class Timeline {
     constructor(rect, svg) {
         this.rect = rect;
+        this.palette = ["#B3E5FC", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8","#F0F4C3","#FFF9C4","#FFECB3"]
         this.g = svg.append("g")
             .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
 
@@ -112,7 +113,7 @@ class Timeline {
             .attr("points", d => this._periodPoints(d))
             .attr("class", "period")
             .attr("clip-path", "url(#timeline_clip)")
-            .attr("fill", (d, i) => "hsl(" + (i * 80) + ",50%,75%)");
+            .attr("fill", (d, i) => this.palette[i]);
 
         // Texte
         this.g.append("g").selectAll(".periodName")
