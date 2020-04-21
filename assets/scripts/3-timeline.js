@@ -125,7 +125,7 @@ class Timeline {
             .attr("text-anchor", "middle")
             .attr("clip-path", "url(#timeline_clip)")
             .attr("x", d => this.x(this._getMiddleDate(d)))
-            .attr("y", this.rect.height * this.heightPercent + 10)
+            .attr("y", d => this.rect.height * this.heightPercent + 10 + Math.random()*250)
             .attr("dy", "1.5em")
             .attr("font-weight", "bold");
     }
