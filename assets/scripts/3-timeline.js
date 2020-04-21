@@ -119,7 +119,7 @@ class Timeline {
             .data(periods)
             .enter()
             .append("text")
-            .text(d => d.Name)
+            .html(d => d.Name)
             .attr("class", "periodName")
             .attr("id", d => "periodName" + d.Name)
             .attr("text-anchor", "middle")
