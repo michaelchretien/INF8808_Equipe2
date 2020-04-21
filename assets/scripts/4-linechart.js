@@ -179,7 +179,7 @@ class LineChart {
             return data.values.findIndex(d => d.key == date.getFullYear())
         }
 
-        if (this.data == null)
+        if (this.data == null || date == null)
             return []
 
         return this.data.map(
@@ -192,6 +192,10 @@ class LineChart {
 
     _getTooltipContent(d) {
         // TODO ajouter plus de détail dans le tooltip
+
+        if (d == undefined)
+            return ""
+            
         var values = this._getValues(d)
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
