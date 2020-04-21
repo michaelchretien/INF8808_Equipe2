@@ -38,9 +38,11 @@ class ScatterPlot {
 
     initialize(crashes, periods) {
         // TODO utiliser les classes css pour le style des axes, cercle, titres
+        this.data = crashes
 
-        this.y.domain([0, 600]) // TODO récupérer la valeur max à partir du dataset
+        //this.y.domain([0, 600]) // TODO récupérer la valeur max à partir du dataset
         domainX(this.x, crashes);
+        this._updateDomainY()
 
         var x = this.x
         var y = this.y
@@ -97,6 +99,7 @@ class ScatterPlot {
 
     update(newDomain) {
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
+        this._updateDomainY()
 
         var x = this.x
         var y = this.y
@@ -105,5 +108,14 @@ class ScatterPlot {
             .attr("cx", d => x(d.Date))
             .attr("cy", d => y(d.Fatalities))
         this.g.select(".x.axis").call(this.xAxis);
+        this.g.select(".y.axis").call(this.yAxis);
+    }
+
+    _updateDomainY() {
+        var range = this.x.domain()
+        var fatalities = this.data
+            .filter(crash => crash.Date >= range[0] && crash.Date <= range[1])
+            .map(crash => parseInt(crash.Fatalities))
+        this.y.domain([0, d3.max(fatalities) + 100])
     }
 }

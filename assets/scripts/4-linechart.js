@@ -46,13 +46,14 @@ class LineChart {
 
     initialize(crashes, periods) {
         domainX(this.x, crashes);
-        this.y.domain([3000, 0])
 
         this.data = d3.nest()
             .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
             .key(d => d.Date.getFullYear())
             .sortKeys(d3.descending)
             .entries(crashes);
+
+        this._updateDomainY()
 
         var lineGroups = this.g.append("g")
             .attr("class", "context")
@@ -111,6 +112,7 @@ class LineChart {
     update(newDomain) {
         this.tooltip.hide()
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
+        this._updateDomainY()
 
         var line = this.line
         this.g.selectAll("path.line").attr("d", function (d) {
@@ -118,6 +120,23 @@ class LineChart {
         });
 
         this.g.select(".x.axis").call(this.xAxis);
+        this.g.select(".y.axis").call(this.yAxis);
+
+    }
+
+    _updateDomainY() {
+        var minYear = this.x.domain()[0].getFullYear(),
+            maxYear = this.x.domain()[1].getFullYear();
+
+        var max = 0
+        for (var i = minYear; i <= maxYear; i++) {
+            var values = this._getValues(parseYear(i))
+            values.forEach(type =>
+                max = d3.max([max, this._getTotalFatalities(type)])
+            )
+        }
+
+        this.y.domain([max + 100, 0])
     }
 
     _createLine(x, y) {
@@ -139,7 +158,7 @@ class LineChart {
     }
 
     _getTotalFatalities(values) {
-        return d3.sum(values, e => e.Fatalities)
+        return d3.sum(values, e => parseInt(e.Fatalities))
     }
 
     _getCirclePositions(x, y) {
@@ -151,6 +170,9 @@ class LineChart {
         var findYearIndex = (data) => {
             return data.values.findIndex(d => d.key == date.getFullYear())
         }
+
+        if (this.data == null)
+            return []
 
         return this.data.map(
             d => {
