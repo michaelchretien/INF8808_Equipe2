@@ -66,8 +66,8 @@ class LineChart {
             .attr("d", d => this.line(d))
             .attr("clip-path", "url(#linechart_clip)")
             .style("pointer-events", "none")
-            .style("stroke", "black")
-            .style("stroke-width", 1)
+            .style("stroke", "red")
+            .style("stroke-width", 2)
             .attr("id", d => "context" + d.key);
 
         // Axe horizontal

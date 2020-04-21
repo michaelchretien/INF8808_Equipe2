@@ -94,7 +94,9 @@ class ScatterPlot {
             .attr("cy", d => y(d.Fatalities))
             .attr("clip-path", "url(#scatterplot_clip)")
             .attr("r", 1.5)
-            .style("fill", "black")
+            .style("fill", function(d, i) {
+                return d.Operator.includes("Military") ? "red" : "blue";
+            })
     }
 
     update(newDomain) {

@@ -112,11 +112,10 @@ class MapViz {
     }
 
     static _generateMarker(coordinates, isMilitary) {
-        // TODO Changer la couleur par rapport à si c'est un vol militaire ou commercial
         // TODO Peut-être faire en sorte que le radius est plus grand lorsqu'il y a plus qu'un écrasement à une coordonnée
         const options = {
-            color: "red",
-            fillColor: "#FF0033",
+            color: isMilitary ? "red" : "blue",
+            fillColor: isMilitary ? "#FF0033" : "3300FF",
             fillOpacity: 0.5,
             radius: 50
         };
@@ -124,8 +123,7 @@ class MapViz {
     }
 
     static _isMilitary(crash) {
-        // TODO
-        return true;
+        return crash.Operator.includes("Military");
     }
 
     static _dateIsBetween(date, start, end) {
