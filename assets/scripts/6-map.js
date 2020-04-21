@@ -15,9 +15,6 @@
 
 "use strict";
 class MapViz {
-
-    static _MAP_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png";
-
     constructor(L) {
         const options = {
             worldCopyJump: true,
@@ -132,7 +129,18 @@ class MapViz {
     }
 
     static _getTooltipContent(c) {
-        return c.Location
+        var parseDate = d3.timeFormat("%Y/%m/%d");
+ 
+        //console.log('c', c)
+
+        return "<b>" + c.Location + "</b>" +
+            "<br><b>Date</b> : " + parseDate(c.Date) + " " + c.Time +
+            "<br><b>Opérateur</b> : " + c.Operator +
+            "<br><b>Route</b> : " + c.Route +
+            "<br><b>Morts</b> : " + c.Fatalities +
+            "<br><b>Survivants</b> : " + c.Survivors
     }
 
 }
+
+MapViz._MAP_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png";

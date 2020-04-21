@@ -31,7 +31,7 @@ class Rect {
     /***** Configuration *****/
     const sliderRect = new Rect(0, 50, 50, 1150);
     const timelineRect = new Rect(50, 1200, 50, 1150);
-    const graph1Rect = new Rect(200, 600, 50, 1150);
+    const graph1Rect = new Rect(250, 600, 50, 1150);
     const graph2Rect = new Rect(725, 1125, 50, 1150);
 
 

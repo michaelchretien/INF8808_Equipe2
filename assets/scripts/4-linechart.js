@@ -47,11 +47,7 @@ class LineChart {
     initialize(crashes, periods) {
         domainX(this.x, crashes);
 
-        this.data = d3.nest()
-            .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
-            .key(d => d.Date.getFullYear())
-            .sortKeys(d3.descending)
-            .entries(crashes);
+        this.data = this._prepareData(crashes)
 
         this._updateDomainY()
 
@@ -124,6 +120,27 @@ class LineChart {
 
     }
 
+    _prepareData(crashes) {
+        var data = d3.nest()
+            .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
+            .key(d => d.Date.getFullYear())
+            .sortKeys(d3.ascending)
+            .entries(crashes);
+
+        var minYear = this.x.domain()[0].getFullYear(),
+            maxYear = this.x.domain()[1].getFullYear();
+
+        data.forEach(type => {
+            var i = 0
+            for (var year = minYear; year <= maxYear; year++) {
+                if (type.values[i].key != year)
+                    type.values.splice(i, 0, {key: year, values: []})
+                i++
+            }
+        })
+        return data
+    }
+
     _updateDomainY() {
         var minYear = this.x.domain()[0].getFullYear(),
             maxYear = this.x.domain()[1].getFullYear();
@@ -179,7 +196,7 @@ class LineChart {
             return data.values.findIndex(d => d.key == date.getFullYear())
         }
 
-        if (this.data == null)
+        if (this.data == null || date == null)
             return []
 
         return this.data.map(
@@ -192,6 +209,10 @@ class LineChart {
 
     _getTooltipContent(d) {
         // TODO ajouter plus de détail dans le tooltip
+
+        if (d == undefined)
+            return ""
+
         var values = this._getValues(d)
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])

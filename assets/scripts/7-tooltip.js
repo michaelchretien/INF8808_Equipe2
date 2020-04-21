@@ -52,8 +52,10 @@ class Tooltip {
     }
 
     hide(d) {
-        this.tip.hide(d)
-        this.g.style("display", "none")
+        if (d != undefined) {
+            this.tip.hide(d)
+            this.g.style("display", "none")
+        }
     }
 
     getPosition(x, y) {
