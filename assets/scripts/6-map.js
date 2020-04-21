@@ -15,9 +15,6 @@
 
 "use strict";
 class MapViz {
-
-    static _MAP_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png";
-
     constructor(L) {
         const options = {
             worldCopyJump: true,
@@ -142,3 +139,5 @@ class MapViz {
     }
 
 }
+
+MapViz._MAP_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png";
