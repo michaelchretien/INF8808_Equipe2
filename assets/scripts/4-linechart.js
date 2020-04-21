@@ -142,6 +142,10 @@ class LineChart {
         return d3.sum(values, e => e.Fatalities)
     }
 
+    _getTotalSurvivors(values) {
+        return d3.sum(values[0], e => e.Survivors) + d3.sum(values[1], e => e.Survivors)
+    }
+
     _getCirclePositions(x, y) {
         return this._getValues(this._getTooltipYear(x))
             .map(values => values ? this.y(this._getTotalFatalities(values)) : 0)
@@ -163,8 +167,10 @@ class LineChart {
     _getTooltipContent(d) {
         // TODO ajouter plus de détail dans le tooltip
         var values = this._getValues(d)
+        console.log('values', values)
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
             + "<br>" + "Nombre de morts militaires: " + this._getTotalFatalities(values[0])
+            + "<br>" + "Nombre de survivants: " + this._getTotalSurvivors(values)
     }
 }
