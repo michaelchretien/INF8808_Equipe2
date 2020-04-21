@@ -131,9 +131,9 @@ class MapViz {
     }
 
     static _getTooltipContent(c) {
-        var parseDate = d3.timeFormat("%Y-%m-%d");
+        var parseDate = d3.timeFormat("%Y/%m/%d");
  
-        return c.Location +
+        return "<b>" + c.Location + "</b>" +
             "<br>" + parseDate(c.Date) +
             "<br>"
     }
