@@ -142,6 +142,10 @@ class LineChart {
         return d3.sum(values, e => e.Fatalities)
     }
 
+    _getTotalFatalitiesGround(values) {
+        return d3.sum(values[0], e => e.Ground) + d3.sum(values[1], e => e.Ground)
+    }
+
     _getTotalSurvivors(values) {
         return d3.sum(values[0], e => e.Survivors) + d3.sum(values[1], e => e.Survivors)
     }
@@ -171,6 +175,7 @@ class LineChart {
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
             + "<br>" + "Nombre de morts militaires: " + this._getTotalFatalities(values[0])
+            + "<br>" + "Nombre de morts (au sol): " + this._getTotalFatalitiesGround(values)
             + "<br>" + "Nombre de survivants: " + this._getTotalSurvivors(values)
     }
 }
