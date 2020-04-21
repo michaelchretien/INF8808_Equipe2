@@ -37,6 +37,9 @@ class MapViz {
     }
 
     initialize(crashes, locationsCoordinates) {
+        var svg = d3.select(this._map.getPanes().overlayPane).append("svg");
+        var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
         this._markers = MapViz._generateMarkers(crashes, locationsCoordinates);
 
         this.update();
@@ -97,6 +100,7 @@ class MapViz {
                 continue;
             }
 
+            marker.bindTooltip(MapViz._getTooltipContent(crash)).openTooltip();
             const date = crash.Date;
             markers.push({
                 date: date,
@@ -127,6 +131,10 @@ class MapViz {
     static _dateIsBetween(date, start, end) {
         return start.valueOf() <= date.valueOf()
             && date.valueOf() < end.valueOf();
+    }
+
+    static _getTooltipContent(c) {
+        return c.Location
     }
 
 }
