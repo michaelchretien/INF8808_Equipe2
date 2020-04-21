@@ -29,16 +29,16 @@ class Rect {
 ((L, d3, localization) => {
 
     /***** Configuration *****/
-    const sliderRect = new Rect(0, 50, 100, 1200);
-    const timelineRect = new Rect(50, 1200, 100, 1200);
-    const graph1Rect = new Rect(200, 600, 100, 1200);
-    const graph2Rect = new Rect(725, 1125, 100, 1200);
+    const sliderRect = new Rect(0, 50, 50, 1150);
+    const timelineRect = new Rect(50, 1200, 50, 1150);
+    const graph1Rect = new Rect(200, 600, 50, 1150);
+    const graph2Rect = new Rect(725, 1125, 50, 1150);
 
 
     /***** Création des éléments *****/
     const svg = d3.select("body")
         .append("svg")
-        .attr("width", 1400)
+        .attr("width", 1200)
         .attr("height", 1700);
 
     // Pour définir les clip-paths
@@ -46,8 +46,8 @@ class Rect {
 
     // Création des éléments
     const map = new MapViz(L);
-    const slider = new Slider(sliderRect, svg);
     const timeline = new Timeline(timelineRect, svg);
+    const slider = new Slider(sliderRect, svg);
     const graph1 = new LineChart(graph1Rect, svg);
     const graph2 = new ScatterPlot(graph2Rect, svg);
 

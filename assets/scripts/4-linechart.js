@@ -193,7 +193,6 @@ class LineChart {
     _getTooltipContent(d) {
         // TODO ajouter plus de détail dans le tooltip
         var values = this._getValues(d)
-        console.log('values', values)
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
             + "<br>" + "Nombre de morts militaires: " + this._getTotalFatalities(values[0])
