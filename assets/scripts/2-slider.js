@@ -48,6 +48,7 @@ class Slider {
             .call(this.xAxis);
 
         // Ajout du brush
+        var onSelectionChanged = () => this.onSelectionChanged();
         var brush = d3.brushX()
             .extent([[0, 0], [this.rect.width, this.rect.height]])
             .on('brush', () => {
@@ -66,9 +67,7 @@ class Slider {
                 var d0 = d3.event.selection.map(x.invert);
                 var d1 = d0.map(d => parseYear(d.getFullYear()))
                 d3.select(this).transition().call(d3.event.target.move, d1.map(x))
-            })
-            .on("end", () => {
-                this.onSelectionChanged();
+                onSelectionChanged()
             })
 
         var gBrush = this.g.append("g")
