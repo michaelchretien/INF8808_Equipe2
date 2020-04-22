@@ -34,6 +34,13 @@ class ScatterPlot {
             .append("rect")
             .attr("width", this.rect.width)
             .attr("height", this.rect.height);
+
+        this.tip = d3.tip()
+            .attr("class", "d3-tip")
+            .offset([-8, 0])
+            .html(c => this._getTooltipContent(c));
+        
+        this.g.call(this.tip);
     }
 
     initialize(crashes, periods) {
@@ -97,6 +104,8 @@ class ScatterPlot {
             .style("fill", function(d, i) {
                 return d.Operator.includes("Military") ? "red" : "orange";
             })
+            .on("mouseover", this.tip.show)
+            .on("mouseout", this.tip.hide);
     }
 
     update(newDomain) {
@@ -119,5 +128,16 @@ class ScatterPlot {
             .filter(crash => crash.Date >= range[0] && crash.Date <= range[1])
             .map(crash => parseInt(crash.Fatalities))
         this.y.domain([0, d3.max(fatalities) + 100])
+    }
+
+    _getTooltipContent(c) {
+        var parseDate = d3.timeFormat("%Y/%m/%d");
+        
+        return "<b>" + c.Location + "</b>" +
+            "<br><b>Date</b> : " + parseDate(c.Date) + " " + c.Time +
+            "<br><b>Opérateur</b> : " + c.Operator +
+            "<br><b>Route</b> : " + c.Route +
+            "<br><b>Morts</b> : " + c.Fatalities +
+            "<br><b>Survivants</b> : " + c.Survivors
     }
 }
