@@ -15,6 +15,9 @@
  */
 
 
+var PALETTE = ["#B3E5FC", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8","#F0F4C3","#FFF9C4","#FFECB3"]
+
+
 /**
  * Convertit une année en string vers un objet Date
  */

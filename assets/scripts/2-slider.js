@@ -64,7 +64,7 @@ class Slider {
                 //     this.onSelectionChanged();
                 //     this._lastUpdate = now;
                 // }
-                if(this._isLiveUpdate)
+                if (this._isLiveUpdate)
                     onSelectionChanged()
             })
             .on('end', function () {
@@ -116,7 +116,7 @@ class Slider {
             .attr("width", d => this.x(d.EndDate) - this.x(d.StartDate))
             .attr("height", this.rect.height)
             .attr("clip-path", "url(#graphviz_clip)")
-            .attr("fill", (d, i) => "hsl(" + (i * 80) + ",50%,75%)");
+            .attr("fill", (_, i) => PALETTE[i]);
 
     }
 
