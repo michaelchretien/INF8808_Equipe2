@@ -39,7 +39,7 @@ class ScatterPlot {
             .attr("class", "d3-tip")
             .offset([-8, 0])
             .html(c => this._getTooltipContent(c));
-        
+
         this.g.call(this.tip);
     }
 
@@ -101,7 +101,7 @@ class ScatterPlot {
             .attr("cy", d => y(d.Fatalities))
             .attr("clip-path", "url(#scatterplot_clip)")
             .attr("r", 2)
-            .style("fill", function(d, i) {
+            .style("fill", function (d, i) {
                 return d.Operator.includes("Military") ? "red" : "orange";
             })
             .on("mouseover", this.tip.show)
@@ -132,7 +132,7 @@ class ScatterPlot {
 
     _getTooltipContent(c) {
         var parseDate = d3.timeFormat("%Y/%m/%d");
-        
+
         return "<b>" + c.Location + "</b>" +
             "<br><b>Date</b> : " + parseDate(c.Date) + " " + c.Time +
             "<br><b>Opérateur</b> : " + c.Operator +

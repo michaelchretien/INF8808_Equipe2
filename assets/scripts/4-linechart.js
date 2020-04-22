@@ -61,7 +61,7 @@ class LineChart {
             .attr("class", "line")
             .attr("d", d => this.line(d))
             .attr("clip-path", "url(#linechart_clip)")
-            .style("pointer-events", "none")
+            .style("pointerS-events", "none")
             .style("stroke", (years) => {
                 for (const year of years) {
                     if (!year.values || year.values.length === 0) {
@@ -144,7 +144,7 @@ class LineChart {
             var i = 0
             for (var year = minYear; year <= maxYear; year++) {
                 if (type.values[i].key != year)
-                    type.values.splice(i, 0, {key: year, values: []})
+                    type.values.splice(i, 0, { key: year, values: [] })
                 i++
             }
         })
