@@ -10,7 +10,7 @@ Une version interactive du résultat final est disponible ici:  https://michr97.
 
 ### But
 
-Nous avons choisi d'analyser l'histoire des écrasements d'avion à travers différentes visualisations. Notre jeu de données comprend plus de 3000 évènements répartis sur une centaine d'années. Notre projet permet d'analyser les différentes tendances sur le plan géographique et quantitatif.
+Nous avons choisi d'analyser l'histoire des écrasements d'avion à travers différentes visualisations. Notre jeu de données comprend plus de 4000 évènements répartis sur une centaine d'années. Notre projet permet d'analyser les différentes tendances sur le plan géographique et quantitatif.
 
 ## Les visualisations
 
@@ -45,3 +45,9 @@ https://data.world/data-society/airplane-crashes
  * Kevin Pastor
  * Elias Jambari
  * Michaël Chrétien
+
+
+ ## Version statique
+
+ ![timeline](img/static.png)
+
