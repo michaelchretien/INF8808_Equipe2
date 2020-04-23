@@ -12,6 +12,9 @@
  *
  * Basé sur le code du TP2
  */
+
+"use strict";
+
 class LineChart {
     constructor(rect, svg) {
         this.rect = rect;
@@ -23,10 +26,10 @@ class LineChart {
             .range([0, rect.height]);
 
         this.g = svg.append("g")
-            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+            .attr("transform", `translate(${rect.left},${rect.top})`);
 
         this.line = this._createLine(this.x, this.y);
-        this.xAxis = d3.axisBottom(this.x)//.tickFormat(localization.getFormattedDate);
+        this.xAxis = d3.axisBottom(this.x);
         this.yAxis = d3.axisLeft(this.y);
 
         // Ajout d'un plan de découpage.
@@ -37,29 +40,41 @@ class LineChart {
             .attr("width", this.rect.width)
             .attr("height", this.rect.height);
 
-        this.tooltip = new Tooltip(this.g, this.rect)
-        this.tooltip.getPosition = (x, y) => this._getTooltipPosition(x, y);
-        this.tooltip.getCirclePosition = (x, y) => this._getCirclePositions(x, y);
-        this.tooltip.getLinePosition = (x, y) => this._getLinePosition(x, y);
-        this.tooltip.getContent = (d) => this._getTooltipContent(this.currentYear);
+        this.tooltip = new Tooltip(this.g, this.rect);
+        this.tooltip.getPosition = (x, y) => {
+            return this._getTooltipPosition(x, y);
+        };
+        this.tooltip.getCirclePosition = (x, y) => {
+            return this._getCirclePositions(x, y);
+        };
+        this.tooltip.getLinePosition = (x, y) => {
+            return this._getLinePosition(x, y);
+        };
+        this.tooltip.getContent = () => {
+            return this._getTooltipContent(this.currentYear);
+        };
     }
 
-    initialize(crashes, periods) {
+    initialize(crashes) {
         domainX(this.x, crashes);
 
-        this.data = this._prepareData(crashes)
+        this.data = this._prepareData(crashes);
 
-        this._updateDomainY()
+        this._updateDomainY();
 
-        var lineGroups = this.g.append("g")
+        this.g.append("g")
             .attr("class", "context")
             .selectAll("g")
-            .data(this.data.map(d => d.values))
-            .enter().append("g")
-
-        lineGroups.append("path")
+            .data(this.data.map((d) => {
+                return d.values;
+            }))
+            .enter()
+            .append("g")
+            .append("path")
             .attr("class", "line")
-            .attr("d", d => this.line(d))
+            .attr("d", (d) => {
+                return this.line(d);
+            })
             .attr("clip-path", "url(#linechart_clip)")
             .style("pointerS-events", "none")
             .style("stroke", (years) => {
@@ -74,19 +89,19 @@ class LineChart {
                 return "orange";
             })
             .style("stroke-width", 2)
-            .attr("id", d => "context" + d.key);
+            .attr("id", (d) => {
+                return `context${d.key}`;
+            });
 
         // Axe horizontal
         this.g.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + this.rect.height + ")")
+            .attr("transform", `translate(0,${this.rect.height})`)
             .call(this.xAxis);
 
         // Titre axe horizontal
         this.g.append("text")
-            .attr("transform",
-                "translate(" + (this.rect.width - 10) + " ," +
-                (this.rect.height + 40) + ")")
+            .attr("transform", `translate(${this.rect.width - 10} ,${this.rect.height + 40})`)
             .style("text-anchor", "end")
             .text("Date");
 
@@ -116,118 +131,159 @@ class LineChart {
     }
 
     update(newDomain) {
-        this.tooltip.hide()
+        this.tooltip.hide();
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
-        this._updateDomainY()
+        this._updateDomainY();
 
-        var line = this.line
-        this.g.selectAll("path.line").attr("d", function (d) {
-            return line(d)
-        });
+        this.g.selectAll("path.line")
+            .attr("d", (d) => {
+                return this.line(d);
+            });
 
-        this.g.select(".x.axis").call(this.xAxis);
-        this.g.select(".y.axis").call(this.yAxis);
+        this.g.select(".x.axis")
+            .call(this.xAxis);
+        this.g.select(".y.axis")
+            .call(this.yAxis);
 
     }
 
     _prepareData(crashes) {
-        var data = d3.nest()
-            .key(d => d.Operator.includes("Military") ? "Militaire" : "Civil")
-            .key(d => d.Date.getFullYear())
+        const data = d3.nest()
+            .key((d) => {
+                return d.Operator.includes("Military") ? "Militaire" : "Civil";
+            })
+            .key((d) => {
+                return d.Date.getFullYear();
+            })
             .sortKeys(d3.ascending)
             .entries(crashes);
 
-        var minYear = this.x.domain()[0].getFullYear(),
-            maxYear = this.x.domain()[1].getFullYear();
+        const minYear = this.x.domain()[0].getFullYear();
+        const maxYear = this.x.domain()[1].getFullYear();
 
-        data.forEach(type => {
-            var i = 0
-            for (var year = minYear; year <= maxYear; year++) {
-                if (type.values[i].key != year)
-                    type.values.splice(i, 0, { key: year, values: [] })
-                i++
+        for (const type of data) {
+            let i = 0;
+            for (let year = minYear; year <= maxYear; year++) {
+                if (type.values[i].key != year) {
+                    type.values.splice(i, 0, { key: year, values: [] });
+                }
+                i++;
             }
-        })
-        return data
+        }
+
+        return data;
     }
 
     _updateDomainY() {
-        var minYear = this.x.domain()[0].getFullYear(),
-            maxYear = this.x.domain()[1].getFullYear();
+        const minYear = this.x.domain()[0].getFullYear();
+        const maxYear = this.x.domain()[1].getFullYear();
 
-        var max = 0
-        for (var i = minYear; i <= maxYear; i++) {
-            var values = this._getValues(parseYear(i))
-            values.forEach(type =>
-                max = d3.max([max, this._getTotalFatalities(type)])
-            )
+        let max = 0;
+        for (let i = minYear; i <= maxYear; i++) {
+            const values = this._getValues(parseYear(i));
+            for (const type of values) {
+                max = d3.max([max, this._getTotalFatalities(type)]);
+            }
         }
 
-        this.y.domain([max + 100, 0])
+        this.y.domain([max + 100, 0]);
     }
 
     _createLine(x, y) {
-        var parser = d3.timeParse("%Y");
+        const parser = d3.timeParse("%Y");
+
         return d3.line()
-            .x(d => x(parser(d.key)))
-            .y(d => y(this._getTotalFatalities(d.values)))
+            .x((d) => {
+                return x(parser(d.key));
+            })
+            .y((d) => {
+                return y(this._getTotalFatalities(d.values));
+            })
             .curve(d3.curveMonotoneX);
     }
 
     _getTooltipYear(mousePosX) {
-        var reversed_date = this.x.invert(mousePosX)
-        this.currentYear = d3.timeParse("%Y")(reversed_date.getFullYear() + (reversed_date.getMonth() > 5 ? 1 : 0))
-        return this.currentYear
+        const reversedDate = this.x.invert(mousePosX);
+        this.currentYear = d3.timeParse("%Y")(reversedDate.getFullYear() + (reversedDate.getMonth() > 5 ? 1 : 0));
+
+        return this.currentYear;
     }
 
     _getLinePosition(x, y) {
-        return [this.x(this._getTooltipYear(x)), 0]
+        return [this.x(this._getTooltipYear(x)), 0];
     }
 
     _getTotalFatalities(values) {
-        return d3.sum(values, e => parseInt(e.Fatalities))
+        if (!values) {
+            return 0;
+        }
+
+        return d3.sum(values, (e) => {
+            return parseInt(e.Fatalities);
+        });
     }
 
     _getTotalFatalitiesGround(values) {
-        return d3.sum(values[0], e => e.Ground) + d3.sum(values[1], e => e.Ground)
+        if (!values) {
+            return 0;
+        }
+
+        return d3.sum(values[0], (e) => {
+            return e.Ground;
+        })
+            + d3.sum(values[1], (e) => {
+                return e.Ground;
+            });
     }
 
     _getTotalSurvivors(values) {
-        return d3.sum(values[0], e => e.Survivors) + d3.sum(values[1], e => e.Survivors)
+        if (!values) {
+            return 0;
+        }
+
+        return d3.sum(values[0], (e) => {
+            return e.Survivors;
+        })
+            + d3.sum(values[1], (e) => {
+                return e.Survivors;
+            });
     }
 
     _getCirclePositions(x, y) {
         return this._getValues(this._getTooltipYear(x))
-            .map(values => values ? this.y(this._getTotalFatalities(values)) : 0)
+            .map((values) => {
+                return values ? this.y(this._getTotalFatalities(values)) : 0;
+            });
     }
 
     _getValues(date) {
-        var findYearIndex = (data) => {
-            return data.values.findIndex(d => d.key == date.getFullYear())
+        const findYearIndex = (data) => {
+            return data.values.findIndex((d) => {
+                return d.key == date.getFullYear();
+            });
+        };
+
+        if (this.data == null || date == null) {
+            return [];
         }
 
-        if (this.data == null || date == null)
-            return []
+        return this.data.map((d) => {
+            const values = d.values[findYearIndex(d)];
 
-        return this.data.map(
-            d => {
-                var values = d.values[findYearIndex(d)]
-                return values ? values.values : []
-            }
-        )
+            return values ? values.values : [];
+        });
     }
 
     _getTooltipContent(d) {
-        // TODO ajouter plus de détail dans le tooltip
+        if (!d) {
+            return "";
+        }
 
-        if (d == undefined)
-            return ""
-
-        var values = this._getValues(d)
+        const values = this._getValues(d);
         return d.getFullYear()
             + "<br>" + "Nombre de morts civiles: " + this._getTotalFatalities(values[1])
             + "<br>" + "Nombre de morts militaires: " + this._getTotalFatalities(values[0])
             + "<br>" + "Nombre de morts (au sol): " + this._getTotalFatalitiesGround(values)
-            + "<br>" + "Nombre de survivants: " + this._getTotalSurvivors(values)
+            + "<br>" + "Nombre de survivants: " + this._getTotalSurvivors(values);
     }
 }

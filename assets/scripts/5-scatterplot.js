@@ -12,11 +12,14 @@
  *
  * Basé sur le code du TP2
  */
+
+"use strict";
+
 class ScatterPlot {
     constructor(rect, svg) {
         this.rect = rect;
         this.g = svg.append("g")
-            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+            .attr("transform", `translate(${rect.left},${rect.top})`);
 
         this.x = d3.scaleTime()
             .range([0, rect.width]);
@@ -24,7 +27,8 @@ class ScatterPlot {
         this.y = d3.scaleLinear()
             .range([this.rect.height, 0]);
 
-        this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
+        this.xAxis = d3.axisBottom(this.x)
+            .tickFormat(localization.getFormattedDate);
         this.yAxis = d3.axisLeft(this.y);
 
         // Ajout d'un plan de découpage
@@ -38,21 +42,18 @@ class ScatterPlot {
         this.tip = d3.tip()
             .attr("class", "d3-tip")
             .offset([-8, 0])
-            .html(c => this._getTooltipContent(c));
+            .html((c) => {
+                return this._getTooltipContent(c);
+            });
 
         this.g.call(this.tip);
     }
 
-    initialize(crashes, periods) {
-        // TODO utiliser les classes css pour le style des axes, cercle, titres
-        this.data = crashes
+    initialize(crashes) {
+        this.data = crashes;
 
-        //this.y.domain([0, 600]) // TODO récupérer la valeur max à partir du dataset
         domainX(this.x, crashes);
-        this._updateDomainY()
-
-        var x = this.x
-        var y = this.y
+        this._updateDomainY();
 
         // Titre
         this.g.append("text")
@@ -66,14 +67,12 @@ class ScatterPlot {
         // Axe horizontal
         this.g.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + this.rect.height + ")")
+            .attr("transform", `translate(0,${this.rect.height})`)
             .call(this.xAxis);
 
         // Titre axe horizontal
         this.g.append("text")
-            .attr("transform",
-                "translate(" + (this.rect.width - 10) + " ," +
-                (this.rect.height + 40) + ")")
+            .attr("transform", `translate(${this.rect.width - 10} ,${this.rect.height + 40})`)
             .style("text-anchor", "end")
             .text("Date");
 
@@ -97,11 +96,15 @@ class ScatterPlot {
             .data(crashes)
             .enter()
             .append("circle")
-            .attr("cx", d => x(d.Date))
-            .attr("cy", d => y(d.Fatalities))
+            .attr("cx", (d) => {
+                return this.x(d.Date);
+            })
+            .attr("cy", (d) => {
+                return this.y(d.Fatalities);
+            })
             .attr("clip-path", "url(#scatterplot_clip)")
             .attr("r", 2)
-            .style("fill", function (d, i) {
+            .style("fill", (d) => {
                 return d.Operator.includes("Military") ? "red" : "orange";
             })
             .on("mouseover", this.tip.show)
@@ -110,34 +113,42 @@ class ScatterPlot {
 
     update(newDomain) {
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
-        this._updateDomainY()
-
-        var x = this.x
-        var y = this.y
+        this._updateDomainY();
 
         this.g.selectAll("circle")
-            .attr("cx", d => x(d.Date))
-            .attr("cy", d => y(d.Fatalities))
-        this.g.select(".x.axis").call(this.xAxis);
-        this.g.select(".y.axis").call(this.yAxis);
+            .attr("cx", (d) => {
+                return this.x(d.Date);
+            })
+            .attr("cy", (d) => {
+                return this.y(d.Fatalities);
+            });
+
+        this.g.select(".x.axis")
+            .call(this.xAxis);
+        this.g.select(".y.axis")
+            .call(this.yAxis);
     }
 
     _updateDomainY() {
-        var range = this.x.domain()
-        var fatalities = this.data
-            .filter(crash => crash.Date >= range[0] && crash.Date <= range[1])
-            .map(crash => parseInt(crash.Fatalities))
-        this.y.domain([0, d3.max(fatalities) + 100])
+        const range = this.x.domain();
+        const fatalities = this.data.filter((crash) => {
+            return crash.Date >= range[0] && crash.Date <= range[1];
+        })
+            .map((crash) => {
+                return parseInt(crash.Fatalities);
+            });
+
+        this.y.domain([0, d3.max(fatalities) + 100]);
     }
 
     _getTooltipContent(c) {
-        var parseDate = d3.timeFormat("%Y/%m/%d");
+        const parseDate = d3.timeFormat("%Y/%m/%d");
 
         return "<b>" + c.Location + "</b>" +
             "<br><b>Date</b> : " + parseDate(c.Date) + " " + c.Time +
             "<br><b>Opérateur</b> : " + c.Operator +
             "<br><b>Route</b> : " + c.Route +
             "<br><b>Morts</b> : " + c.Fatalities +
-            "<br><b>Survivants</b> : " + c.Survivors
+            "<br><b>Survivants</b> : " + c.Survivors;
     }
 }

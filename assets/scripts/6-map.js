@@ -14,6 +14,7 @@
  */
 
 "use strict";
+
 class MapViz {
     constructor(L) {
         const options = {
@@ -34,8 +35,10 @@ class MapViz {
     }
 
     initialize(crashes, locationsCoordinates) {
-        var svg = d3.select(this._map.getPanes().overlayPane).append("svg");
-        var g = svg.append("g").attr("class", "leaflet-zoom-hide");
+        d3.select(this._map.getPanes().overlayPane)
+            .append("svg")
+            .append("g")
+            .attr("class", "leaflet-zoom-hide");
 
         this._markers = MapViz._generateMarkers(crashes, locationsCoordinates);
 
@@ -109,13 +112,13 @@ class MapViz {
     }
 
     static _generateMarker(coordinates, isMilitary) {
-        // TODO Peut-être faire en sorte que le radius est plus grand lorsqu'il y a plus qu'un écrasement à une coordonnée
         const options = {
             color: isMilitary ? "red" : "orange",
             fillColor: isMilitary ? "red" : "orange",
             fillOpacity: 0.5,
             radius: 2000
         };
+
         return L.circle(coordinates, options);
     }
 
@@ -130,8 +133,6 @@ class MapViz {
 
     static _getTooltipContent(c) {
         var parseDate = d3.timeFormat("%Y/%m/%d");
-
-        //console.log('c', c)
 
         return "<b>" + c.Location + "</b>" +
             "<br><b>Date</b> : " + parseDate(c.Date) + " " + c.Time +

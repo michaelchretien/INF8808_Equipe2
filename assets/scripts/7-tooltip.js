@@ -12,19 +12,20 @@
  *
  * Basé sur le code du TP2
  */
+
+"use strict";
+
 class Tooltip {
     constructor(g, rect) {
-        this.parent = g
-        this.g = g.append("g")
-        //.attr("id", "tooltip")
-        //.style("display", "none");
+        this.parent = g;
+        this.g = g.append("g");
 
         this.g.append("line")
             .attr("x1", 0)
             .attr("y1", 0)
             .attr("x2", 0)
             .attr("y2", rect.height)
-            .style("stroke", "blue")
+            .style("stroke", "blue");
 
         this.tip = d3.tip()
             .attr("class", "d3-tip")
@@ -39,53 +40,58 @@ class Tooltip {
             .attr("height", rect.height)
             .attr("fill", "none")
             .style("pointer-events", "all")
-            .on('mouseover', d => this.show(d))
-            .on('mouseout', d => this.hide(d))
-            .on("mousemove", _ => this.mousemove());
-
-        //this.show();
+            .on("mouseover", (d) => {
+                this.show(d);
+            })
+            .on("mouseout", (d) => {
+                this.hide(d);
+            })
+            .on("mousemove", () => {
+                this.mousemove();
+            });
     }
 
     show(d) {
-        this.tip.show(d, this.g.node())
-        this.g.style("display", null)
+        this.tip.show(d, this.g.node());
+        this.g.style("display", null);
     }
 
     hide(d) {
-        if (d != undefined) {
-            this.tip.hide(d)
-            this.g.style("display", "none")
+        if (d) {
+            this.tip.hide(d);
+            this.g.style("display", "none");
         }
     }
 
     getPosition(x, y) {
         // Override la méthode par les components pour 
         // fixer le tip sur une ligne par exemple
-        return [x, y] // tipPos, linePos, circlePos
+        return [x, y]; // tipPos, linePos, circlePos
     }
 
     getContent(d) {
-        return "default"
+        return "default";
     }
 
     getLinePosition(x, y) {
-        return [x, 0]
+        return [x, 0];
     }
 
     getCirclePosition(x, y) {
-        return []
+        return [];
     }
 
     mousemove() {
-        var [x, y] = d3.mouse(this.parent.node())
-        var linePos = this.getLinePosition(x, y)
-        this.g.attr("transform", "translate(" + linePos[0] + "," + linePos[1] + ")");
-        this.show()
+        const [x, y] = d3.mouse(this.parent.node());
+        const linePos = this.getLinePosition(x, y);
+        this.g.attr("transform", `translate(${linePos[0]}, ${linePos[1]})`);
+        this.show();
 
-        var circles = this.g.selectAll("circle")
-            .data(this.getCirclePosition(x, y))
+        const circles = this.g.selectAll("circle")
+            .data(this.getCirclePosition(x, y));
 
-        circles.exit().remove()
+        circles.exit()
+            .remove();
 
         circles.enter()
             .append("circle")
@@ -96,6 +102,8 @@ class Tooltip {
 
         circles.transition()
             .duration(0)
-            .attr("cy", d => d)
+            .attr("cy", (d) => {
+                return d;
+            });
     }
 }

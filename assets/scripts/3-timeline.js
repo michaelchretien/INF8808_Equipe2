@@ -14,11 +14,12 @@
  */
 
 "use strict";
+
 class Timeline {
     constructor(rect, svg) {
         this.rect = rect;
         this.g = svg.append("g")
-            .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+            .attr("transform", `translate(${rect.left},${rect.top})`);
 
         // Domaine du bas du graphique
         this.x = d3.scaleTime()
@@ -28,7 +29,9 @@ class Timeline {
         this.xTop = d3.scaleTime()
             .range([0, rect.width]);
 
-        this.xAxis = d3.axisBottom(this.x).tickFormat(localization.getFormattedDate);
+        this.xAxis = d3.axisBottom(this.x)
+            .tickFormat(localization.getFormattedDate);
+
         this.heightPercent = 0.05;
 
         // Ajout d'un plan de découpage.
@@ -36,41 +39,45 @@ class Timeline {
             .append("clipPath")
             .attr("id", "timeline_clip")
             .append("polygon")
-            .attr("points", this._backgroundPoints())
+            .attr("points", this._backgroundPoints());
     }
 
     initialize(crashes, periods) {
         domainX(this.x, crashes);
         domainX(this.xTop, crashes);
 
-        this._addBackground()
-        this._addPeriods(periods)
+        this._addBackground();
+        this._addPeriods(periods);
     }
 
     update(newDomain) {
         this.x.domain(d3.event.selection === null ? newDomain.domain() : d3.event.selection.map(newDomain.invert));
-        this._updateClipPath()
-        this._updatePeriods()
-        this._updateBackground()
+        this._updateClipPath();
+        this._updatePeriods();
+        this._updateBackground();
     }
 
     _updatePeriods() {
         this.g.selectAll("polygon.period")
-            .attr("points", d => this._periodPoints(d))
+            .attr("points", (d) => {
+                return this._periodPoints(d);
+            });
 
         this.g.selectAll(".periodName")
-            .attr("x", d => this.x(this._getMiddleDate(d)))
+            .attr("x", (d) => {
+                return this.x(this._getMiddleDate(d));
+            });
     }
 
     _updateBackground() {
         this.g.select("#timeline_bg")
-            .attr("points", this._backgroundPoints())
+            .attr("points", this._backgroundPoints());
     }
 
     _updateClipPath() {
         d3.select("#timeline_clip")
             .select("polygon")
-            .attr("points", this._backgroundPoints())
+            .attr("points", this._backgroundPoints());
     }
 
     _addBackground() {
@@ -79,7 +86,7 @@ class Timeline {
             .attr("points", this._backgroundPoints())
             .style("stroke", "black")
             .style("fill", "none")
-            .style("stroke-width", 1)
+            .style("stroke-width", 1);
     }
 
     _backgroundPoints() {
@@ -87,10 +94,10 @@ class Timeline {
             [this.xTop(this.x.domain()[0]), 0], // Haut gauche
             [this.xTop(this.x.domain()[1]), 0], // Haut droite
             [this.rect.width, this.rect.height * this.heightPercent], // Bas droite
-            [this.rect.width, this.rect.height],// Bas gauche
-            [0, this.rect.height],// Bas gauche
-            [0, this.rect.height * this.heightPercent]// Bas gauche
-        ]
+            [this.rect.width, this.rect.height], // Bas gauche
+            [0, this.rect.height], // Bas gauche
+            [0, this.rect.height * this.heightPercent] // Bas gauche
+        ];
     }
 
     _periodPoints(d) {
@@ -100,37 +107,52 @@ class Timeline {
             [this.x(d.EndDate), this.rect.height * this.heightPercent], // Bas droite
             [this.x(d.EndDate), this.rect.height], // Bas droite
             [this.x(d.StartDate), this.rect.height], // Bas droite
-            [this.x(d.StartDate), this.rect.height * this.heightPercent]// Bas gauche
-        ]
+            [this.x(d.StartDate), this.rect.height * this.heightPercent] // Bas gauche
+        ];
     }
 
     _addPeriods(periods) {
         // Barre Verticales
-        this.g.append("g").selectAll("period")
+        this.g.append("g")
+            .selectAll("period")
             .data(periods)
-            .enter().append("polygon")
-            .attr("points", d => this._periodPoints(d))
+            .enter()
+            .append("polygon")
+            .attr("points", (d) => {
+                return this._periodPoints(d);
+            })
             .attr("class", "period")
             .attr("clip-path", "url(#timeline_clip)")
-            .attr("fill", (_, i) => PALETTE[i]);
+            .attr("fill", (d, i) => {
+                return PALETTE[i];
+            });
 
         // Texte
-        this.g.append("g").selectAll(".periodName")
+        this.g.append("g")
+            .selectAll(".periodName")
             .data(periods)
             .enter()
             .append("text")
-            .html(d => d.Name)
+            .html((d) => {
+                return d.Name;
+            })
             .attr("class", "periodName")
-            .attr("id", d => "periodName" + d.Name)
+            .attr("id", (d) => {
+                return `periodName${d.Name}`;
+            })
             .attr("text-anchor", "middle")
             .attr("clip-path", "url(#timeline_clip)")
-            .attr("x", d => this.x(this._getMiddleDate(d)))
-            .attr("y", (d, i) => this.rect.height * this.heightPercent - 10 + ((i % 3) * 20))
+            .attr("x", (d) => {
+                return this.x(this._getMiddleDate(d));
+            })
+            .attr("y", (d, i) => {
+                return this.rect.height * this.heightPercent - 10 + ((i % 3) * 20);
+            })
             .attr("dy", "1.5em")
             .attr("font-weight", "bold");
     }
 
     _getMiddleDate(d) {
-        return new Date((d.StartDate.getTime() + d.EndDate.getTime()) / 2)
+        return new Date((d.StartDate.getTime() + d.EndDate.getTime()) / 2);
     }
 }
