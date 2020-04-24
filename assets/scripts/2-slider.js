@@ -106,11 +106,9 @@ class Slider {
 
         const handle = gBrush.selectAll(".handle--custom")
             .data([{ type: "w" }, { type: "e" }])
-            .enter().append("path")
+            .enter()
+            .append("path")
             .attr("class", "handle--custom")
-            .attr("stroke", "#000")
-            .attr("fill", "#eee")
-            .attr("cursor", "ew-resize")
             .attr("d", d => this._getBrushResizePath(d));
 
         gBrush.selectAll(".overlay")
