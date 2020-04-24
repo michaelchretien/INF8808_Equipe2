@@ -59,9 +59,7 @@ class ScatterPlot {
         this.g.append("text")
             .attr("x", (this.rect.width / 2))
             .attr("y", -30)
-            .attr("text-anchor", "middle")
-            .style("font-size", "16px")
-            .style("text-decoration", "underline")
+            .attr("class", "plot-title")
             .text("Nombre de décès par accident");
 
         // Axe horizontal
@@ -86,9 +84,9 @@ class ScatterPlot {
         this.g.append("text")
             .attr("class", "y label")
             .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
             .attr("y", 6)
             .attr("dy", ".75em")
-            .attr("transform", "rotate(-90)")
             .text("Nombre de décès");
 
         // Points

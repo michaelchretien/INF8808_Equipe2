@@ -144,3 +144,9 @@ rect.selection {
     width: 1200px;
     height: 20px;
 }
+
+.plot-title {
+    text-anchor: middle;
+    font-size: 16px;
+    text-decoration: underline;
+}
