@@ -127,3 +127,20 @@ rect.selection {
 .title {
     text-align: center;
 }
+
+.legend-military-circle {
+    fill: red;
+}
+
+.legend-civil-circle {
+    fill: orange;
+}
+
+.legend-text {
+    font-size: 15px;
+}
+
+#legend {
+    width: 1200px;
+    height: 20px;
+}
