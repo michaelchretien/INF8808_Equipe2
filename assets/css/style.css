@@ -29,6 +29,9 @@ body {
 
 .line {
   fill: none;
+  clip-path: url(#linechart_clip);
+  pointer-events: none;
+  stroke-width: 2px;
 }
 
 .axis text {

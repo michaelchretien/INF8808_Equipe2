@@ -75,8 +75,6 @@ class LineChart {
             .attr("d", (d) => {
                 return this.line(d);
             })
-            .attr("clip-path", "url(#linechart_clip)")
-            .style("pointerS-events", "none")
             .style("stroke", (years) => {
                 for (const year of years) {
                     if (!year.values || year.values.length === 0) {
@@ -88,7 +86,6 @@ class LineChart {
 
                 return "orange";
             })
-            .style("stroke-width", 2)
             .attr("id", (d) => {
                 return `context${d.key}`;
             });
@@ -108,25 +105,22 @@ class LineChart {
         // Axe vertical
         this.g.append("g")
             .attr("class", "y axis")
-            .attr("transform", "translate(0,0 )")
             .call(this.yAxis);
 
         // Titre axe vertical
         this.g.append("text")
             .attr("class", "y label")
             .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
             .attr("y", 6)
             .attr("dy", ".75em")
-            .attr("transform", "rotate(-90)")
             .text("Nombre de décès");
 
         // Titre
         this.g.append("text")
             .attr("x", (this.rect.width / 2))
             .attr("y", -30)
-            .attr("text-anchor", "middle")
-            .style("font-size", "16px")
-            .style("text-decoration", "underline")
+            .attr("class","plot-title")
             .text("Évolution du nombre de décès par année");
     }
 
