@@ -153,3 +153,9 @@ rect.selection {
     font-size: 16px;
     text-decoration: underline;
 }
+
+#timeline_bg {
+    stroke: black;
+    fill: none;
+    stroke-width: 1px;
+}
