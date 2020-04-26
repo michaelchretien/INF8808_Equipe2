@@ -83,10 +83,7 @@ class Timeline {
     _addBackground() {
         this.g.append("polygon")
             .attr("id", "timeline_bg")
-            .attr("points", this._backgroundPoints())
-            .style("stroke", "black")
-            .style("fill", "none")
-            .style("stroke-width", 1);
+            .attr("points", this._backgroundPoints());
     }
 
     _backgroundPoints() {

@@ -17,31 +17,27 @@
 
 class Legend {
     constructor() {
-        const svg = d3.select("#legend")
-            .attr("width", 1200)
-            .attr("height", 20);
+        const svg = d3.select("#legend");
 
         svg.append("circle")
             .attr("cx", 60)
             .attr("cy", 10)
             .attr("r", 6)
-            .style("fill", "red");
+            .attr("class", "legend-military-circle");
         svg.append("circle")
             .attr("cx", 200)
             .attr("cy", 10)
             .attr("r", 6)
-            .style("fill", "orange");
+            .attr("class", "legend-civil-circle");
         svg.append("text")
             .attr("x", 70)
-            .attr("y", 12)
+            .attr("y", 16)
             .text("Militaire")
-            .style("font-size", "15px")
-            .attr("alignment-baseline", "middle");
+            .attr("class", "legend-text");
         svg.append("text")
             .attr("x", 210)
-            .attr("y", 12)
+            .attr("y", 16)
             .text("Civil")
-            .style("font-size", "15px")
-            .attr("alignment-baseline", "middle");
+            .attr("class", "legend-text");
     }
 }
