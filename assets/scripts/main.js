@@ -52,7 +52,7 @@ class Rect {
 
     /***** Chargement des données *****/
     Promise.all([
-        d3.csv("./data/with_location_from_gouv_fr.csv"),
+        d3.csv("./data/Airplane_Crashes_and_Fatalities_Since_1908.csv"),
         d3.csv("./data/periods.csv"),
         d3.json("./data/locations-coordinates.json")
     ])
